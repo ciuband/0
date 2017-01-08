@@ -1,0 +1,417 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<addons>
+<addon id="plugin.video.tvrplus"
+       name="TvrPlus"
+       version="1.0.4"
+       provider-name="kingul">
+  <requires>
+    <import addon="xbmc.python" version="2.1.0"/>
+  </requires>
+  <extension point="xbmc.python.pluginsource"
+            library="default.py">
+        <provides>video</provides>
+  </extension>
+  <extension point="xbmc.addon.metadata">
+    <summary>Emisiuni TvrPlus</summary>
+    <description>Urmareste emisiunile aflate pe TvrPlus.ro</description>
+    <platform>all</platform>
+  </extension>
+</addon>
+
+<addon id="plugin.video.tvmaniabgcom"
+       name="TVManiaBG.com"
+       version="1.0.0"
+       provider-name="kingul">
+  <requires>
+    <import addon="xbmc.python" version="2.1.0"/>
+  </requires>
+  <extension point="xbmc.python.pluginsource"
+            library="default.py">
+        <provides>video</provides>
+  </extension>
+  <extension point="xbmc.addon.metadata">
+    <summary>Live video from TvManiaBG.com</summary>
+    <description>Watch live streaming video from TvManiaBG.com</description>
+    <platform>all</platform>
+  </extension>
+</addon>
+
+<addon id='torrenter.searcher.FileListRO' version='1.0.4'
+     name='Torrenter Searcher: FileListRO' provider-name='Kingul'>
+  <requires>
+    <import addon='xbmc.python' version='2.1.0'/>
+  </requires>
+  <extension point="xbmc.python.script" library="__init__.py">
+    <provides>executable</provides>
+  </extension>
+      <extension point="xbmc.addon.metadata">
+        <platform>all</platform>
+        <summary lang='en'>Torrenter v2 Searcher module for FileList.RO.
+        </summary>
+        <description lang='en'>Torrenter v2 Searcher module for FileList.RO.
+        </description>
+        <disclaimer lang='en'>GNU GPLv3 http://www.gnu.org/licenses/</disclaimer>
+        <summary lang='ru'>Серчер трекера FileList.RO для плагина Torrenter v2.
+        </summary>
+        <description lang='ru'>Серчер трекера FileList.RO для плагина Torrenter v2.
+        </description>
+        <disclaimer lang='ru'>GNU GPLv3 http://www.gnu.org/licenses/</disclaimer>
+    </extension>
+  <extension point='xbmc.python.module'/>
+</addon>
+
+<addon id="plugin.video.protvro"
+       name="Protv.ro"
+       version="1.0.6"
+       provider-name="kingul">
+  <requires>
+    <import addon="xbmc.python" version="2.1.0"/>
+  </requires>
+  <extension point="xbmc.python.pluginsource"
+            library="default.py">
+        <provides>video</provides>
+  </extension>
+  <extension point="xbmc.addon.metadata">
+    <summary>Emisiuni Protv.ro</summary>
+    <description>Urmareste emisiunile si serialele difuzate pe ProTV</description>
+    <platform>all</platform>
+  </extension>
+</addon>
+
+<addon id="plugin.video.klatvro"
+       name="Kla.tv"
+       version="1.0.3"
+       provider-name="kingul">
+  <requires>
+    <import addon="xbmc.python" version="2.1.0"/>
+  </requires>
+  <extension point="xbmc.python.pluginsource"
+            library="default.py">
+        <provides>video</provides>
+  </extension>
+  <extension point="xbmc.addon.metadata">
+    <summary>Video de pe kla.tv</summary>
+    <description>Vizualizeaza videoclipuri de pe kla.tv</description>
+    <platform>all</platform>
+  </extension>
+</addon>
+
+<addon id="plugin.video.filmehdnet"
+       name="FilmeHD.net"
+       version="1.0.1"
+       provider-name="kingul">
+  <requires>
+    <import addon="xbmc.python" version="2.1.0"/>
+    <import addon="script.mrknow.urlresolver"  version="2016.10.21.1"/>
+  </requires>
+  <extension point="xbmc.python.pluginsource"
+            library="default.py">
+        <provides>video</provides>
+  </extension>
+  <extension point="xbmc.addon.metadata">
+    <summary>Filme de pe FilmeHD.net</summary>
+    <description>Urmareste filme subtitrate in romana de pe FilmeHD.net</description>
+    <platform>all</platform>
+  </extension>
+</addon>
+
+<addon id="plugin.video.digi24"
+       name="Digi24"
+       version="1.1.6"
+       provider-name="kingul">
+  <requires>
+    <import addon="xbmc.python" version="2.1.0"/>
+  </requires>
+  <extension point="xbmc.python.pluginsource"
+            library="default.py">
+        <provides>video</provides>
+  </extension>
+  <extension point="xbmc.addon.metadata">
+    <summary>Emisiuni digi24</summary>
+    <description>Urmareste emisiunile aflate pe Digi24.ro</description>
+    <platform>all</platform>
+  </extension>
+</addon>
+
+<addon id='torrenter.searcher.RarBG' version='1.0.2'
+     name='Torrenter Searcher: RarBG' provider-name='Kingul'>
+  <requires>
+    <import addon='xbmc.python' version='2.1.0'/>
+  </requires>
+  <extension point="xbmc.python.script" library="__init__.py">
+    <provides>executable</provides>
+  </extension>
+      <extension point="xbmc.addon.metadata">
+        <platform>all</platform>
+        <summary lang='en'>Torrenter v2 Searcher module for RarBG.
+        </summary>
+        <description lang='en'>Torrenter v2 Searcher module for RarBG.
+        </description>
+        <disclaimer lang='en'>GNU GPLv3 http://www.gnu.org/licenses/</disclaimer>
+        <summary lang='ru'>Серчер трекера RarBG для плагина Torrenter v2.
+        </summary>
+        <description lang='ru'>Серчер трекера RarBG для плагина Torrenter v2.
+        </description>
+        <disclaimer lang='ru'>GNU GPLv3 http://www.gnu.org/licenses/</disclaimer>
+    </extension>
+  <extension point='xbmc.python.module'/>
+</addon>
+
+<addon id="service.subtitles.regielive"
+       name="Regielive"
+       version="1.1.6"
+       provider-name="kingul">
+  <requires>
+    <import addon="xbmc.python" version="2.1.0"/>
+  </requires>
+  <extension point="xbmc.subtitle.module"
+             library="service.py" />
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en">Regielive</summary>
+    <description lang="en">Cauta si descarca subtitrari de pe subtitrari.regielive.ro</description>
+    <disclaimer lang="en"></disclaimer>
+    <platform>all</platform>
+    <license>GNU GENERAL PUBLIC LICENSE. Version 2, June 1991</license>
+    <forum>http://forum.xbmc.org/showthread.php?tid=183114</forum>
+    <website></website>
+    <email></email>
+    <source>https://github.com/viorel-m/kodi-repo</source>
+  </extension>
+</addon>
+
+<addon id="plugin.video.220ro"
+       name="220.ro"
+       version="1.0.9"
+       provider-name="kingul">
+  <requires>
+    <import addon="xbmc.python" version="2.1.0"/>
+  </requires>
+  <extension point="xbmc.python.pluginsource"
+            library="default.py">
+        <provides>video</provides>
+  </extension>
+  <extension point="xbmc.addon.metadata">
+    <summary>Videoclipuri de pe 220.ro</summary>
+    <description>Urmareste filmulete funny, farse etc de pe 220.ro</description>
+    <platform>all</platform>
+  </extension>
+</addon>
+
+<addon id='torrenter.searcher.DataScene' version='1.0.2'
+     name='Torrenter Searcher: DataScene' provider-name='Kingul'>
+  <requires>
+    <import addon='xbmc.python' version='2.1.0'/>
+  </requires>
+  <extension point="xbmc.python.script" library="__init__.py">
+    <provides>executable</provides>
+  </extension>
+      <extension point="xbmc.addon.metadata">
+        <platform>all</platform>
+        <summary lang='en'>Torrenter v2 Searcher module for DataScene.net.
+        </summary>
+        <description lang='en'>Torrenter v2 Searcher module for DataScene.net.
+        </description>
+        <disclaimer lang='en'>GNU GPLv3 http://www.gnu.org/licenses/</disclaimer>
+        <summary lang='ru'>Серчер трекера DataScene для плагина Torrenter v2.
+        </summary>
+        <description lang='ru'>Серчер трекера DataScene для плагина Torrenter v2.
+        </description>
+        <disclaimer lang='ru'>GNU GPLv3 http://www.gnu.org/licenses/</disclaimer>
+    </extension>
+  <extension point='xbmc.python.module'/>
+</addon>
+
+<addon id="service.subtitles.subsro"
+       name="Subs.ro"
+       version="1.1.1"
+       provider-name="kingul">
+  <requires>
+    <import addon="xbmc.python" version="2.1.0"/>
+  </requires>
+  <extension point="xbmc.subtitle.module"
+             library="service.py" />
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en">Subs.ro</summary>
+    <description lang="en">Cauta si descarca subtitrari de pe subs.ro</description>
+    <disclaimer lang="en"></disclaimer>
+    <platform>all</platform>
+    <license>GNU GENERAL PUBLIC LICENSE. Version 2, June 1991</license>
+    <forum>http://forum.xbmc.org/showthread.php?tid=183114</forum>
+    <website></website>
+    <email></email>
+    <source>https://github.com/viorel-m/kodi-repo</source>
+  </extension>
+</addon>
+
+<addon id="service.subtitles.titrariro"
+       name="Titrari.ro"
+       version="1.0.7"
+       provider-name="kingul">
+  <requires>
+    <import addon="xbmc.python" version="2.1.0"/>
+  </requires>
+  <extension point="xbmc.subtitle.module"
+             library="service.py" />
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en">Titrari.ro</summary>
+    <description lang="en">Cauta si descarca subtitrari de pe titrari.ro</description>
+    <disclaimer lang="en"></disclaimer>
+    <platform>all</platform>
+    <license>GNU GENERAL PUBLIC LICENSE. Version 2, June 1991</license>
+    <forum>http://forum.xbmc.org/showthread.php?tid=183114</forum>
+    <website></website>
+    <email></email>
+    <source>https://github.com/viorel-m/kodi-repo</source>
+  </extension>
+</addon>
+
+<addon id="plugin.video.triluliluro"
+       name="trilulilu.ro"
+       version="2.0.4"
+       provider-name="kingul">
+  <requires>
+    <import addon="xbmc.python" version="2.1.0"/>
+  </requires>
+  <extension point="xbmc.python.pluginsource"
+            library="default.py">
+        <provides>video</provides>
+  </extension>
+  <extension point="xbmc.addon.metadata">
+    <summary>Filme online de la trilulilu.ro</summary>
+    <description>Urmareste videoclipuri de pe trilulilu.ro</description>
+    <platform>all</platform>
+  </extension>
+</addon>
+
+<addon id="plugin.video.filmeonline2013biz"
+       name="Filmeonline2013.biz"
+       version="1.0.3"
+       provider-name="kingul">
+  <requires>
+    <import addon="xbmc.python" version="2.1.0"/>
+    <import addon="script.mrknow.urlresolver"  version="2016.10.21.1"/>
+  </requires>
+  <extension point="xbmc.python.pluginsource"
+            library="default.py">
+        <provides>video</provides>
+  </extension>
+  <extension point="xbmc.addon.metadata">
+    <summary>Filme de pe filmeonline2013.biz</summary>
+    <description>Urmareste filme subtitrate in romana de pe filmeonline2013.biz</description>
+    <platform>all</platform>
+  </extension>
+</addon>
+
+<addon id="service.subtitles.subtitrarinoiro"
+       name="Subtitrari-noi.ro"
+       version="1.0.7"
+       provider-name="kingul">
+  <requires>
+    <import addon="xbmc.python" version="2.1.0"/>
+  </requires>
+  <extension point="xbmc.subtitle.module"
+             library="service.py" />
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en">Subtitrari-noi.ro</summary>
+    <description lang="en">Cauta si descarca subtitrari de pe subtitrari-noi.ro</description>
+    <disclaimer lang="en"></disclaimer>
+    <platform>all</platform>
+    <license>GNU GENERAL PUBLIC LICENSE. Version 2, June 1991</license>
+    <forum>http://forum.xbmc.org/showthread.php?tid=183114</forum>
+    <website></website>
+    <email></email>
+    <source>https://github.com/viorel-m/kodi-repo</source>
+  </extension>
+</addon>
+
+<addon id="plugin.video.hindilovercom"
+       name="Hindilover.com"
+       version="1.0.4"
+       provider-name="kingul">
+  <requires>
+    <import addon="xbmc.python" version="2.1.0"/>
+    <import addon="script.mrknow.urlresolver"  version="2016.10.21.1"/>
+  </requires>
+  <extension point="xbmc.python.pluginsource"
+            library="default.py">
+        <provides>video</provides>
+  </extension>
+  <extension point="xbmc.addon.metadata">
+    <summary>Seriale si filme hindilover.com</summary>
+    <description>Urmareste seriale si filme de pe hindilover.com</description>
+    <platform>all</platform>
+  </extension>
+</addon>
+
+<addon id="plugin.video.desene3dcom"
+       name="Desene3d.com"
+       version="1.0.1"
+       provider-name="kingul">
+  <requires>
+    <import addon="xbmc.python" version="2.1.0"/>
+    <import addon="script.mrknow.urlresolver"  version="2016.10.21.1"/>
+  </requires>
+  <extension point="xbmc.python.pluginsource"
+            library="default.py">
+        <provides>video</provides>
+  </extension>
+  <extension point="xbmc.addon.metadata">
+    <summary>continut video Deseneanimate3D.com</summary>
+    <description>vizioneaza filme, seriale, emisiuni tv si altele, subtitrate sau dublate in limba romana</description>
+    <platform>all</platform>
+  </extension>
+</addon>
+
+<addon id='torrenter.searcher.FreshOnTV' version='1.0.0'
+     name='Torrenter Searcher: FreshOn.tv' provider-name='Kingul'>
+  <requires>
+    <import addon='xbmc.python' version='2.1.0'/>
+  </requires>
+  <extension point="xbmc.python.script" library="__init__.py">
+    <provides>executable</provides>
+  </extension>
+      <extension point="xbmc.addon.metadata">
+        <platform>all</platform>
+        <summary lang='en'>Torrenter v2 Searcher module for FreshOn.tv a.k.a. TvTorrents RO.
+        </summary>
+        <description lang='en'>Torrenter v2 Searcher module for FreshOn.tv a.k.a. TvTorrents RO.
+        </description>
+        <disclaimer lang='en'>GNU GPLv3 http://www.gnu.org/licenses/</disclaimer>
+        <summary lang='ru'>Серчер трекера FreshOn.tv a.k.a. TvTorrents RO для плагина Torrenter v2.
+        </summary>
+        <description lang='ru'>Серчер трекера FreshOn.tv a.k.a. TvTorrents RO для плагина Torrenter v2.
+        </description>
+        <disclaimer lang='ru'>GNU GPLv3 http://www.gnu.org/licenses/</disclaimer>
+    </extension>
+  <extension point='xbmc.python.module'/>
+</addon>
+
+<addon id="repository.kingul.repo" name="Kingul's Addons" version="1.0.5" provider-name="kingul">
+	<extension point="xbmc.addon.repository" name="Kingul's Addons">
+                <dir>
+			<info compressed="false">https://offshoregit.com/tvaresolvers/tva-common-repository/raw/master/addons.xml</info>
+			<checksum>https://offshoregit.com/tvaresolvers/tva-common-repository/raw/master/addons.xml.md5</checksum>
+			<datadir zip="true">https://offshoregit.com/tvaresolvers/tva-common-repository/raw/master/zips/</datadir>
+		</dir>
+                <dir>
+                        <info compressed="false">http://kodi.filmkodi.com/addons.xml</info>
+                        <checksum>http://kodi.filmkodi.com/addons.xml.md5</checksum>
+                        <datadir zip="true">http://kodi.filmkodi.com/</datadir>
+                </dir>
+                <dir>
+                    <info compressed="false">http://api.bitbucket.org/1.0/repositories/DiMartino/myshows.me-kodi-repo/raw/default/addons.xml</info>
+                    <checksum>http://api.bitbucket.org/1.0/repositories/DiMartino/myshows.me-kodi-repo/raw/default/addons.xml.md5</checksum>
+                    <datadir zip="true">http://api.bitbucket.org/1.0/repositories/DiMartino/myshows.me-kodi-repo/raw/default/repo/</datadir>
+                </dir>
+		<info compressed="false">https://raw.githubusercontent.com/viorel-m/kingul-repo/master/addons.xml</info>
+		<checksum>https://raw.githubusercontent.com/viorel-m/kingul-repo/master/addons.xml.md5</checksum>
+		<datadir zip="true">https://raw.githubusercontent.com/viorel-m/kingul-repo/master/zips</datadir>
+	</extension>
+	<extension point="xbmc.addon.metadata">
+		<summary>Install Addons from https://github.com/viorel-m/kingul-repo</summary>
+		<description>Download and install addons for Kodi.</description>
+                <disclaimer>Kingul</disclaimer>
+		<platform>all</platform>
+	</extension>
+</addon>
+</addons>
