@@ -36,7 +36,7 @@
   </extension>
 </addon>
 
-<addon id='torrenter.searcher.FileListRO' version='1.0.4'
+<addon id='torrenter.searcher.FileListRO' version='1.0.5'
      name='Torrenter Searcher: FileListRO' provider-name='Kingul'>
   <requires>
     <import addon='xbmc.python' version='2.1.0'/>

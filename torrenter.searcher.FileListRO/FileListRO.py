@@ -119,19 +119,19 @@ class FileListRO(SearcherABC.SearcherABC):
         if None != response and 0 < len(response):
             self.debug(response)
             regex = '''<div class=\\'torrentrow\\'>(.+?)</div></div>'''
-            regex_tr = '''title=\\'(.+?)\\'.+?<a href="(.+?)".+?<font class=\\'small\\'>(\d+\.\d+)<.+?#\d+>(\d+)<.+?(<b>|;\\'>)(\d+)<'''
+            regex_tr = '''title=\\'(.+?)\\'.+?<a href="(.+?)".+?<font class=\\'small\\'>(\d+\.\d+.+?)<.+?#\d+>(\d+)<.+?(?:<b>|;\\'>)(\d+)<'''
             for tr in re.compile(regex, re.DOTALL).findall(response):
 	        if re.compile('<title> FileList :: Login </title>').search(response):
                     xbmc.executebuiltin((u'Notification(%s,%s)' % ('FileList.ro', 'lipsa username si parola din setari')))
                 result = re.compile(regex_tr, re.DOTALL).findall(tr)
                 self.debug(tr + ' -> ' + str(result))
                 if result:
-                    (title, link, size, seeds, nothing, leechers) = result[0]
+                    (title, link, size, seeds, leechers) = result[0]
                     title = self.clear_title(title)
                     link = 'http://%s/%s' % (self.baseurl, link)
                     filesList.append((
                                      int(int(self.sourceWeight) * int(seeds)),
-                                     int(seeds), int(leechers), size,
+                                     int(seeds), int(leechers), self.cleanhtml(size),
                                      title,
                                      self.__class__.__name__ + '::' + link,
                                      self.searchIcon,
@@ -143,6 +143,11 @@ class FileListRO(SearcherABC.SearcherABC):
 
     def clear_title(self, s):
         return self.stripHtml(self.unescape(s)).replace('   ', ' ').replace('  ', ' ').strip()
+
+    def cleanhtml(self, raw_html):
+        cleanr = re.compile('<.*?>')
+        cleantext = re.sub(cleanr, ' ', raw_html)
+        return cleantext
 
     def check_login(self, response=None):
         if None != response and 0 < len(response):
