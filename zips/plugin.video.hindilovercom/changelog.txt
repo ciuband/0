@@ -1,3 +1,6 @@
+1.0.5
+Fix links, switched to urlresolver
+
 1.0.4
 Remove common cache from require
 

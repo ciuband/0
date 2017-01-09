@@ -8,26 +8,30 @@ import xbmc
 import xbmcaddon
 import xbmcgui
 import xbmcplugin
+
+if not xbmc.getCondVisibility('System.HasAddon(script.module.urlresolver)'):
+    xbmc.executebuiltin('XBMC.RunPlugin(plugin://script.module.urlresolver)')
+    
 try:
-    import urlresolver9 as urlresolver
-except:
     import urlresolver
+except:
+    pass
 
 settings = xbmcaddon.Addon(id='plugin.video.hindilovercom')
 
 search_thumb = os.path.join(settings.getAddonInfo('path'), 'resources', 'media', 'search.png')
 movies_thumb = os.path.join(settings.getAddonInfo('path'), 'resources', 'media', 'movies.png')
 next_thumb = os.path.join(settings.getAddonInfo('path'), 'resources', 'media', 'next.png')
-
+base_url = 'http://hindilover.net'
 
 def ROOT():
-    addDir('Recente', 'http://hindilover.com/news/', 6, movies_thumb, 'recente')
-    addDir('Filme Indiene', 'http://hindilover.com/news/1-0-31', 6, movies_thumb, 'recente')
-    addDir('Seriale Indiene Terminate', 'http://hindilover.com', 6, movies_thumb, 'SerialIT')
-    addDir('Seriale Indiene in desfasurare', 'http://hindilover.com/index/0-53', 6, movies_thumb, 'SerialT')
-    addDir('Seriale Turcesti', 'http://hindilover.com/index/0-54', 6, movies_thumb, 'SerialT') #
-    addDir('Desene Animate', 'http://hindilover.com/news/1-0-35', 6, movies_thumb, 'recente')
-    addDir('Cauta', 'http://hindilover.com', 3, search_thumb)
+    addDir('Recente', base_url + '/news/', 6, movies_thumb, 'recente')
+    addDir('Filme Indiene', base_url + '/news/1-0-31', 6, movies_thumb, 'recente')
+    addDir('Seriale Indiene Terminate', base_url, 6, movies_thumb, 'SerialIT')
+    addDir('Seriale Indiene in desfasurare', base_url + '/index/0-53', 6, movies_thumb, 'SerialT')
+    addDir('Seriale Turcesti', base_url + '/index/0-54', 6, movies_thumb, 'SerialT') #
+    addDir('Desene Animate', base_url + '/news/1-0-35', 6, movies_thumb, 'recente')
+    addDir('Cauta', base_url, 3, search_thumb)
     
 def striphtml(data):
     p = re.compile(r'<.*?>')
@@ -58,25 +62,19 @@ def CAUTA_LIST(url):
  
 def CAUTA_VIDEO_LIST(url):
     link = get_search(url)
-    regex_src = '''<div class='servere'>(.+?)</div>'''
-    regex_lnk = '''a href="(.+?)"|src="(.+?)"'''
+    regex_src = '''<div id="Server_\d+"(.+?)</div>'''
+    regex_lnk = '''(?:a href=|src=)"(.+?)"'''
     for meniu in re.compile(regex_src, re.IGNORECASE | re.MULTILINE | re.DOTALL).findall(link):
         match = re.compile(regex_lnk, re.DOTALL).findall(meniu)
-        for link1, link2 in match:
-            if link2.startswith("//"):
-                link2 = 'http:' + link2
+        for link1 in match:
             if link1.startswith("//"):
                 link1 = 'http:' + link1 #//ok.ru fix
             parsed_url1 = urlparse.urlparse(link1)
             if parsed_url1.scheme:
-                if urlresolver.HostedMediaFile(link1).valid_url():
+                hmf = urlresolver.HostedMediaFile(url=link1, include_disabled=True, include_universal=True)
+                if hmf.valid_url() == True:
                     host = link1.split('/')[2].replace('www.', '').capitalize()
                     sxaddLink(host, link1, movies_thumb, link1, 10)
-            parsed_url2 = urlparse.urlparse(link2)
-            if parsed_url2.scheme:
-                if urlresolver.HostedMediaFile(link2).valid_url():
-                    host = link2.split('/')[2].replace('www.', '').capitalize()
-                    sxaddLink(host, link2, movies_thumb, link2, 10)
 
             
 
@@ -95,9 +93,10 @@ def CAUTA(url, autoSearch=None):
     CAUTA_LIST(get_search_url(search_string + "" + autoSearch))
     
 def SXVIDEO_GENERIC_PLAY(sxurl):
-    stream_url = urlresolver.resolve(url)
+    #stream_url = urlresolver.resolve(url)
     liz = xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=movies_thumb); liz.setInfo(type="Video", infoLabels={"Title": name})
-    xbmc.Player ().play(stream_url, liz, False)
+    hmf = urlresolver.HostedMediaFile(url=sxurl, include_disabled=True, include_universal=False)
+    xbmc.Player ().play(hmf.resolve(), liz, False)
     
 def get_url(url):
     req = urllib2.Request(url)
@@ -111,7 +110,7 @@ def get_url(url):
         return False
     
 def get_search_url(keyword, offset=None):
-    url = 'http://hindilover.com/search/?q=' + urllib.quote_plus(keyword)
+    url = base_url + '/search/?q=' + urllib.quote_plus(keyword)
     
     if offset != None:
         url += "?offset=" + offset
@@ -135,7 +134,7 @@ def get_search(url):
 def parse_menu(url, meniu):
     match = []
     if url == None:
-        url = 'http://hindilover.com/'
+        url = base_url
     link = get_url(url)
     if meniu == 'recente':
         regex_menu = '''<div class="eTitle"(.+?)</div></td></tr></table><br />'''
@@ -144,7 +143,7 @@ def parse_menu(url, meniu):
             match = re.compile(regex_submenu, re.DOTALL).findall(meniu)
             for legatura, nume, imagine in match:
                 nume = striphtml(nume)
-                link_fix = 'http://hindilover.com' + legatura
+                link_fix = base_url + legatura
                 addDir(nume, link_fix, 5, imagine)
         match = re.compile('"swchItem"', re.IGNORECASE).findall(link)
         if len(match) > 0:
@@ -160,9 +159,6 @@ def parse_menu(url, meniu):
                 else:
                     nexturl = url + '?page2'
                 addNext('Next', nexturl, 6, next_thumb, 'recente')
-            #f = open('/storage/.kodi/temp/files.py', 'w')
-            #f.write('url = ' + repr(nexturl) + '\n')
-            #f.close()
     elif meniu == 'SerialT':
         match = re.compile('class="catsTdI".+?a href="(.+?)".+?class="abcdD.+?>(.+?)<', re.IGNORECASE | re.MULTILINE | re.DOTALL).findall(link)
         if len(match) > 0:
