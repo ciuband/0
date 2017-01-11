@@ -10,10 +10,13 @@ import xbmcaddon
 import xbmcgui
 import xbmcplugin
 
+if not xbmc.getCondVisibility('System.HasAddon(script.module.urlresolver)'):
+    xbmc.executebuiltin('XBMC.RunPlugin(plugin://script.module.urlresolver)')
+
 try:
-    import urlresolver9 as urlresolver
-except:
     import urlresolver
+except:
+    pass
 
 settings = xbmcaddon.Addon(id='plugin.video.desene3dcom')
 
@@ -45,7 +48,8 @@ def CAUTA_VIDEO_LIST(url, name):
             m_link = 'http:' + m_link #//ok.ru fix
         parsed_url1 = urlparse.urlparse(m_link)
         if parsed_url1.scheme:
-            if urlresolver.HostedMediaFile(m_link).valid_url():
+            hmf = urlresolver.HostedMediaFile(url=m_link, include_disabled=True, include_universal=True)
+            if hmf.valid_url() == True:
                 host = m_link.split('/')[2].replace('www.', '').capitalize()
                 sxaddLink((nume + ': ' + host), m_link, movies_thumb, name, 10, name)
         
@@ -63,10 +67,10 @@ def CAUTA(url):
     parse_menu(get_search_url(search_string), 'filme')
     
 def SXVIDEO_GENERIC_PLAY(sxurl, mname, desc):
-    stream_url = urlresolver.resolve(sxurl)
     liz = xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=movies_thumb)
     liz.setInfo(type="Video", infoLabels={"Title": mname, "Plot": desc})
-    xbmc.Player ().play(stream_url, liz, False)
+    hmf = urlresolver.HostedMediaFile(url=sxurl, include_disabled=True, include_universal=False)
+    xbmc.Player ().play(hmf.resolve(), liz, False)
     
 def get_url(url):
     req = urllib2.Request(url)
