@@ -39,7 +39,7 @@ functioneaza numai cu username si parola
 functioneaza numai cu username si parola
 
 ### Streams addon al lui Moromete
-S-a adaugat sopcast pentru playere aarch64 linux (s905)
+S-a adaugat sopcast pentru playere aarch64 linux (s905) testat pe Dotsmart DSPure
 Daca actualizati de la versiunea lui Moromete, este necesar sa actualizati lista de canale ( meniu sau clic dreapta -> refresh channel list)
 
 
