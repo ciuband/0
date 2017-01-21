@@ -1,3 +1,6 @@
+1.0.6
+Ping-pong with urlresolver, switched to mrknow
+
 1.0.5
 Fix links, switched to urlresolver
 

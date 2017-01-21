@@ -9,11 +9,11 @@ import xbmcaddon
 import xbmcgui
 import xbmcplugin
 
-if not xbmc.getCondVisibility('System.HasAddon(script.module.urlresolver)'):
-    xbmc.executebuiltin('XBMC.RunPlugin(plugin://script.module.urlresolver)')
+if not xbmc.getCondVisibility('System.HasAddon(script.mrknow.urlresolver)'):
+    xbmc.executebuiltin('XBMC.RunPlugin(plugin://script.mrknow.urlresolver)')
     
 try:
-    import urlresolver
+    import urlresolver9 as urlresolver
 except:
     pass
 
