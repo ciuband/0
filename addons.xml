@@ -62,7 +62,7 @@
 
 <addon id="plugin.video.protvro"
        name="Protv.ro"
-       version="1.0.6"
+       version="1.0.7"
        provider-name="kingul">
   <requires>
     <import addon="xbmc.python" version="2.1.0"/>
@@ -75,6 +75,7 @@
     <summary>Emisiuni Protv.ro</summary>
     <description>Urmareste emisiunile si serialele difuzate pe ProTV</description>
     <platform>all</platform>
+    <broken>Protv a criptat link-urile, acest plugin ramane broken pana voi avea timp sa ma ocup de aceasta problema</broken>
   </extension>
 </addon>
 
