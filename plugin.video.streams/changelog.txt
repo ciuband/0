@@ -1,3 +1,9 @@
+v 0.4.3
+  1. changed channel names to yellow
+
+v 0.4.2
+  1. added support for sopcast in aarch64 linux systems
+
 v 0.3.8
   1. change arm linux detection
 

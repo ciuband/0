@@ -213,7 +213,7 @@ def CAT_LIST(force=False):
       
   #unverified category
   if SETTINGS.SHOW_UNVERIFIED == 'true':
-    addDir("[COLOR red]"+addon.getLocalizedString(30066)+"[/COLOR]", str(-1), SETTINGS.CHAN_LIST, 1)
+    addDir("[COLOR yellow]"+addon.getLocalizedString(30066)+"[/COLOR]", str(-1), SETTINGS.CHAN_LIST, 1)
 
   #xbmc.executebuiltin("Container.SetViewMode(500)")
   xbmc.executebuiltin("Container.SetViewMode(51)")
@@ -262,7 +262,7 @@ def CHANNEL_LIST(name, cat_id, schedule=False):
         protocol = 'http';
       protocol = protocol.strip()
       if protocol=='sop':
-        protocol_color = '[COLOR lightgreen]'+protocol+'[/COLOR]'
+        protocol_color = '[COLOR yellow]'+protocol+'[/COLOR]'
       else:
         protocol_color = '[COLOR yellow]'+protocol+'[/COLOR]'
           
@@ -274,7 +274,7 @@ def CHANNEL_LIST(name, cat_id, schedule=False):
         logo_name = chan_name.replace(' ', '').lower()
         logo_name = logo_name.encode('utf8')
 
-        chan_name_formatted ="[B][COLOR blue]"+chan_name+"[/COLOR][/B]"
+        chan_name_formatted ="[B][COLOR yellow]"+chan_name+"[/COLOR][/B]"
         chan_name_formatted += " ("+protocol_color
         if(video_codec != ''):
           chan_name_formatted += " "+video_codec
