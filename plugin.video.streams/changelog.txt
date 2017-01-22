@@ -1,3 +1,6 @@
+v 0.4.4
+  1. added Sop to Http support for android devices (tested on Dotsmart DSBlack)
+
 v 0.4.3
   1. changed channel names to yellow
 
