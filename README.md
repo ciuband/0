@@ -40,8 +40,11 @@ functioneaza numai cu username si parola
 
 ### Streams addon al lui Moromete
 S-a adaugat sopcast pentru playere aarch64 linux (s905) testat pe Dotsmart DSPure
+
 Adaugat suport pentru Android, trebuie sa aveti instalat Sop to Http din Google Play
+
 Pentru acestream android aveti nevoie de Ace Stream Engine (tot din Google Play)
+
 Suportul Android testat pe Dotsmart DSBlack
 
 Dupa update este necesar sa actualizati lista de canale ( meniu sau clic dreapta -> refresh channel list)
