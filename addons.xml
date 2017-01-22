@@ -286,7 +286,7 @@
 
 <addon id="plugin.video.streams"
        name="Streams"
-       version="0.4.5"
+       version="0.4.6"
        provider-name="Moromete, Kingul">
   <requires>
     <import addon="xbmc.python" version="2.1.0"/>

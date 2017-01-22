@@ -1,3 +1,6 @@
+v 0.4.6
+  1. changed arch detection
+
 v 0.4.5
   1. added acestream support for linux arm64 (like s905) (tested on Dotsmart DSPure)
 

@@ -405,8 +405,8 @@ def STREAM(name, iconimage, url, protocol, sch_ch_id, ch_id):
         addon_log(inst)
         xbmc.executebuiltin("Notification(%s,%s,%i)" % (addon.getLocalizedString(30303), "", 10000))
     else:
-      if xbmc.getCondVisibility('system.platform.linux'):
-          if "aarch" in os.uname()[4]:
+      if sys.platform.startswith('linux'):
+          if(os.uname()[4][:3] == 'aar'):
               if not os.path.isfile(os.path.join(pastaperfil,"acestream","chroot")):
                   acestream_pack = "https://raw.githubusercontent.com/viorel-m/kingul-repo/master/acestream/acestream_arm64.tar.gz"
                   ACE_KIT = os.path.join(addonpath,acestream_pack.split("/")[-1])
