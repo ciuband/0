@@ -39,7 +39,7 @@ functioneaza numai cu username si parola
 functioneaza numai cu username si parola
 
 ### Streams addon al lui Moromete
-S-a adaugat sopcast pentru playere aarch64 linux (s905) testat pe Dotsmart DSPure
+S-a adaugat sopcast si acestream pentru playere aarch64 linux (s905). Testat pe Dotsmart DSPure
 
 Adaugat suport pentru Android, trebuie sa aveti instalat Sop to Http din Google Play
 
