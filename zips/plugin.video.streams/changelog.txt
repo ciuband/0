@@ -1,3 +1,6 @@
+v 0.4.8
+  1. small fix
+
 v 0.4.7
   1. added arm32 acestream support (like rpi)
 

@@ -418,22 +418,25 @@ def STREAM(name, iconimage, url, protocol, sch_ch_id, ch_id):
         addon_log(inst)
         xbmc.executebuiltin("Notification(%s,%s,%i)" % (addon.getLocalizedString(30303), "", 10000))
     else:
-      if sys.platform.startswith('linux'):
-          if(os.uname()[4][:3] == 'aar'):
+      if xbmc.getCondVisibility('System.Platform.Android'):
+          #xbmc.executebuiltin("Notification(%s,%s,%i)" % ("android", "", 3000))
+          ace = acestream(player=player, url=url, listitem=listitem)
+          ace.engine_connect()
+      elif xbmc.getCondVisibility('system.platform.linux'):
+          #xbmc.executebuiltin("Notification(%s,%s,%i)" % ("linux", "", 3000))
+          if "aarch" in os.uname()[4]:
+              #xbmc.executebuiltin("Notification(%s,%s,%i)" % ("aarch", "", 3000))
               if not os.path.isfile(os.path.join(pastaperfil,"acestream","chroot")):
                   acestream_pack = "https://raw.githubusercontent.com/viorel-m/kingul-repo/master/acestream/acestream_arm64.tar.gz"
                   download_tools().acekit(acestream_pack)
               import acestream as ace
               ace.acestreams_builtin(name,iconimage,url)
-          elif(os.uname()[4][:3] == 'arm'):
+          elif "arm" in os.uname()[4]:
               if not os.path.isfile(os.path.join(pastaperfil,"acestream","chroot")):
                   acestream_pack = "https://raw.githubusercontent.com/viorel-m/kingul-repo/master/acestream/acestream_arm32.tar.gz"
                   download_tools().acekit(acestream_pack)
               import acestream as ace
               ace.acestreams_builtin(name,iconimage,url)
-          else:
-              ace = acestream(player=player, url=url, listitem=listitem)
-              ace.engine_connect()
   
   #play direct stream
   else:
