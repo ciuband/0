@@ -56,6 +56,19 @@ class download_tools():
 		os.remove(file_)
 		dp.update(100)
 		dp.close()
+		
+        def acekit(self,acestream_pack):
+                ACE_KIT = os.path.join(addonpath,acestream_pack.split("/")[-1])
+                download_tools().Downloader(acestream_pack,ACE_KIT,"Downloading AceStream modules.","Streams")
+                if tarfile.is_tarfile(ACE_KIT):
+                    path_libraries = os.path.join(pastaperfil)
+		    download_tools().extract(ACE_KIT,path_libraries)
+		    xbmc.sleep(500)
+		    download_tools().remove(ACE_KIT)
+                binary_path = os.path.join(pastaperfil,"acestream","chroot")
+                st = os.stat(binary_path)
+                import stat
+                os.chmod(binary_path, st.st_mode | stat.S_IEXEC)
 
 
 # try:
@@ -409,18 +422,13 @@ def STREAM(name, iconimage, url, protocol, sch_ch_id, ch_id):
           if(os.uname()[4][:3] == 'aar'):
               if not os.path.isfile(os.path.join(pastaperfil,"acestream","chroot")):
                   acestream_pack = "https://raw.githubusercontent.com/viorel-m/kingul-repo/master/acestream/acestream_arm64.tar.gz"
-                  ACE_KIT = os.path.join(addonpath,acestream_pack.split("/")[-1])
-                  download_tools().Downloader(acestream_pack,ACE_KIT,"Downloading AceStream modules.","Streams")
-                  if tarfile.is_tarfile(ACE_KIT):
-                      path_libraries = os.path.join(pastaperfil)
-		      download_tools().extract(ACE_KIT,path_libraries)
-		      xbmc.sleep(500)
-		      download_tools().remove(ACE_KIT)
-                  binary_path = os.path.join(pastaperfil,"acestream","chroot")
-                  st = os.stat(binary_path)
-                  import stat
-                  os.chmod(binary_path, st.st_mode | stat.S_IEXEC)
-              
+                  download_tools().acekit(acestream_pack)
+              import acestream as ace
+              ace.acestreams_builtin(name,iconimage,url)
+          elif(os.uname()[4][:3] == 'arm'):
+              if not os.path.isfile(os.path.join(pastaperfil,"acestream","chroot")):
+                  acestream_pack = "https://raw.githubusercontent.com/viorel-m/kingul-repo/master/acestream/acestream_arm32.tar.gz"
+                  download_tools().acekit(acestream_pack)
               import acestream as ace
               ace.acestreams_builtin(name,iconimage,url)
           else:

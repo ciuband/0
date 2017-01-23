@@ -1,3 +1,6 @@
+v 0.4.7
+  1. added arm32 acestream support (like rpi)
+
 v 0.4.6
   1. changed arch detection
 
