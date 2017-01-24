@@ -62,7 +62,7 @@ def CAUTA_LIST(url):
  
 def CAUTA_VIDEO_LIST(url):
     link = get_search(url)
-    regex_src = '''<div id="Server_\d+"(.+?)</div>'''
+    regex_src = '''</script> <(.+?)<ins'''
     regex_lnk = '''(?:a href=|src=)"(.+?)"'''
     for meniu in re.compile(regex_src, re.IGNORECASE | re.MULTILINE | re.DOTALL).findall(link):
         match = re.compile(regex_lnk, re.DOTALL).findall(meniu)
