@@ -11,12 +11,18 @@ import xbmcplugin
 
 website = 'http://protvplus.ro'
 
+__addon__ = xbmcaddon.Addon()
+__scriptid__   = __addon__.getAddonInfo('id')
+__scriptname__ = __addon__.getAddonInfo('name')
+__cwd__        = xbmc.translatePath(__addon__.getAddonInfo('path')).decode("utf-8")
+__profile__    = xbmc.translatePath(__addon__.getAddonInfo('profile')).decode("utf-8")
+__resource__   = xbmc.translatePath(os.path.join(__cwd__, 'resources', 'lib')).decode("utf-8")
+__temp__       = xbmc.translatePath(os.path.join(__profile__, 'temp', '')).decode("utf-8")
+search_thumb   = xbmc.translatePath(os.path.join(__cwd__, 'resources', 'media', 'search.png')).decode("utf-8")
+movies_thumb   = xbmc.translatePath(os.path.join(__cwd__, 'resources', 'media', 'movies.png')).decode("utf-8")
+next_thumb   = xbmc.translatePath(os.path.join(__cwd__, 'resources', 'media', 'next.png')).decode("utf-8")
 
-settings = xbmcaddon.Addon(id='plugin.video.protvro')
-
-search_thumb = os.path.join(settings.getAddonInfo('path'), 'resources', 'media', 'search.png')
-movies_thumb = os.path.join(settings.getAddonInfo('path'), 'resources', 'media', 'movies.png')
-next_thumb = os.path.join(settings.getAddonInfo('path'), 'resources', 'media', 'next.png')
+sys.path.append (__resource__)
 
 
 def ROOT():
@@ -39,31 +45,31 @@ def CAUTA(url, autoSearch=None):
     
     parse_menu(get_search_url(search_string), 'emlink')
     
-def SXVIDEO_GENERIC_PLAY(sxurl):
-    link = get_search(website + sxurl)
+def SXVIDEO_GENERIC_PLAY(sxurl, icon):
+    print "icon = " + icon
+    import requests
+    s = requests.Session()
+    url = website + sxurl
+    link = get_search(url)
     match = re.compile('<meta property="og:title" content="(.+?)".+?clipSource =.+?"(.+?)"', re.IGNORECASE | re.MULTILINE | re.DOTALL).findall(link)
     if len(match) > 0:
-        print match
-        iconimage = "DefaultVideo.png"
-        item = xbmcgui.ListItem(match[0][0], iconImage="DefaultVideo.png", thumbnailImage=iconimage)
-        xbmc.Player().play(match[0][1], item)
-    #regex = '''<meta property="og:title" content="(.+?)".+?swf .+?"(.+?)"((.+?//rtmp.+?"(.+?)")+).+?//src.+?"f(.+?)"'''
-    #match=re.compile(regex, re.IGNORECASE|re.MULTILINE|re.DOTALL).findall(link)
-    #if len(match) > 0:
-        #print match
-        #iconimage="DefaultVideo.png"
-        #playpath = 'f' + match[0][5]
-        #rtmp_url = match[0][4]
-        #swf_url = match[0][1]
-        #page_url = "http://protvplus.ro"
-        #item = xbmcgui.ListItem(match[0][0], iconImage="DefaultVideo.png", thumbnailImage=iconimage)
-        #full_rtmp = rtmp_url + ' playpath=' + playpath + ' pageURL=http://protvplus.ro' + ' swfUrl=' + swf_url + ' swfVfy=false live=false '
-        #xbmc.Player().play(full_rtmp, item)
+        iconimage = icon
+        m3url = match[0][1]
+        title = match[0][0]
+    ###Big thanks to Shani for this###
+    ##################################
+    ua = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.80 Safari/537.36"
+    headers = {'User-Agent': ua, 'Referer': url}
+    s.get("http://drmapi.protv.ro/hlsengine/prepare/")
+    play_url = m3url+"|Cookie=PHPSESSID="+s.cookies['PHPSESSID']+";SERVERID="+s.cookies['SERVERID']+";&Origin="+website+"&Referer="+url+"&User-Agent="+ua
+    ###################################
+    item = xbmcgui.ListItem(title, iconImage=icon, thumbnailImage=icon)
+    xbmc.Player().play(play_url, item)
 
     
 def get_url(url):
     req = urllib2.Request(url)
-    req.add_header('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.0.3) Gecko/2008092417 Firefox/3.0.3')
+    req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.80 Safari/537.36')
     try:
         response = urllib2.urlopen(req)
         link = response.read()
@@ -73,7 +79,6 @@ def get_url(url):
         return False
     
 def get_search_url(keyword, offset=None):
-    #http://protvplus.ro/hledat?q=las&searchsend=Search
     url = 'http://protvplus.ro/hledat?q=' + urllib.quote_plus(keyword) + '&searchsend=Search'
     return url
 
@@ -81,7 +86,7 @@ def get_search(url):
     
     params = {}
     req = urllib2.Request(url, urllib.urlencode(params))
-    req.add_header('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.0.3) Gecko/2008092417 Firefox/3.0.3')
+    req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.80 Safari/537.36')
     req.add_header('Content-type', 'application/x-www-form-urlencoded')
     try:
         response = urllib2.urlopen(req)
@@ -111,8 +116,8 @@ def get_params():
 
 def sxaddLink(name, url, iconimage, movie_name, mode=4, descript=None):
     ok = True
-    u = sys.argv[0] + "?url=" + urllib.quote_plus(url) + "&mode=" + str(mode) + "&name=" + urllib.quote_plus(name)
-    liz = xbmcgui.ListItem(name, iconImage="DefaultVideo.png", thumbnailImage=iconimage)
+    u = sys.argv[0] + "?url=" + urllib.quote_plus(url) + "&mode=" + str(mode) + "&name=" + urllib.quote_plus(name) + "&icon=" + urllib.quote_plus(iconimage)
+    liz = xbmcgui.ListItem(name, iconImage=iconimage, thumbnailImage=iconimage)
     liz.addContextMenuItems([('Watched/Unwatched', 'Action(ToggleWatched)')])
     if descript != None:
         liz.setInfo(type="Video", infoLabels={"Title": movie_name, "Plot": descript})
@@ -177,28 +182,26 @@ def parse_menu(url, meniu):
             nexturl = re.sub('\?page=(\d+)', '?page=' + str(pagen), url)
         else:
             nexturl = url.rstrip('/') + '?page=2'
-        #f = open( '/storage/.kodi/temp/files.py', 'w' )
-        #f.write( 'match = ' + repr(nexturl) + '\n' )
-        #f.close()  
         addNext('Next', nexturl, 23, next_thumb, 'emlink')
     xbmcplugin.setContent(int(sys.argv[1]), 'movies')             
 params = get_params()
-url = None
-mode = None
-meniu = None
 
 try:
     url = urllib.unquote_plus(params["url"])
 except:
-    pass
+    url = None
 try:
     mode = int(params["mode"])
 except:
-    pass
+    mode = None
 try:
     meniu = urllib.unquote_plus(params["meniu"])
 except:
-    pass
+    meniu = None
+try:
+    icon = urllib.unquote_plus(params["icon"])
+except:
+    icon = None
 
 
 #print "Mode: "+str(mode)
@@ -215,7 +218,7 @@ elif mode == 23:
         parse_menu(url, meniu)
 
 elif mode == 10:
-        SXVIDEO_GENERIC_PLAY(url)
+        SXVIDEO_GENERIC_PLAY(url, icon)
 
 
 
