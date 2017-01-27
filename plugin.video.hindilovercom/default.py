@@ -26,10 +26,12 @@ base_url = 'http://hindilover.net'
 
 def ROOT():
     addDir('Recente', base_url + '/news/', 6, movies_thumb, 'recente')
-    addDir('Filme Indiene', base_url + '/news/1-0-31', 6, movies_thumb, 'recente')
+    addDir('Cele mai vizionate', base_url + '/news/0-0-1-0-16-2', 6, movies_thumb, 'recente')
+    addDir('Cele mai votate', base_url + '/news/0-0-1-0-16-3', 6, movies_thumb, 'recente')
+    addDir('Filme Indiene', base_url + '/news/filme_indiene/1-0-31', 6, movies_thumb, 'recente')
     addDir('Seriale Indiene Terminate', base_url, 6, movies_thumb, 'SerialIT')
-    addDir('Seriale Indiene in desfasurare', base_url + '/index/0-53', 6, movies_thumb, 'SerialT')
-    addDir('Seriale Turcesti', base_url + '/index/0-54', 6, movies_thumb, 'SerialT') #
+    addDir('Seriale Indiene in desfasurare', 'desfasurare', 6, movies_thumb, 'SerialIT')
+    addDir('Seriale Turcesti', base_url + '/stuff/', 6, movies_thumb, 'turcesti') #
     addDir('Desene Animate', base_url + '/news/1-0-35', 6, movies_thumb, 'recente')
     addDir('Cauta', base_url, 3, search_thumb)
     
@@ -45,7 +47,7 @@ def CAUTA_LIST(url):
     for meniu in re.compile(regex_menu, re.IGNORECASE | re.MULTILINE | re.DOTALL).findall(link):
         match = re.compile(regex_submenu, re.DOTALL).findall(meniu)
         for legatura, nume in match:
-            addDir(nume, legatura, 5, movies_thumb)
+            addDir(striphtml(nume), legatura, 5, movies_thumb)
 
     match = re.compile('"swchItem"', re.IGNORECASE).findall(link)
     if len(match) > 0:
@@ -57,16 +59,14 @@ def CAUTA_LIST(url):
       
         print "NEXT " + nexturl
       
-        addNext('Next', nexturl, 5, next_thumb)
+        addNext('Next', nexturl, 2, next_thumb)
             
  
 def CAUTA_VIDEO_LIST(url):
     link = get_search(url)
-    regex_src = '''</script> <(.+?)<ins'''
-    regex_lnk = '''(?:a href=|src=)"(.+?)"'''
-    for meniu in re.compile(regex_src, re.IGNORECASE | re.MULTILINE | re.DOTALL).findall(link):
-        match = re.compile(regex_lnk, re.DOTALL).findall(meniu)
-        for link1 in match:
+    regex_lnk = '''iframe.+?src="([htt].+?)"'''
+    match = re.compile(regex_lnk, re.IGNORECASE | re.DOTALL).findall(link)
+    for link1 in match:
             if link1.startswith("//"):
                 link1 = 'http:' + link1 #//ok.ru fix
             parsed_url1 = urlparse.urlparse(link1)
@@ -132,16 +132,20 @@ def get_search(url):
         return False
 
 def parse_menu(url, meniu):
+    desf = False
     match = []
     if url == None:
         url = base_url
+    elif url == 'desfasurare':
+        url = base_url
+        desf = True
     link = get_url(url)
     if meniu == 'recente':
-        regex_menu = '''<div class="eTitle"(.+?)</div></td></tr></table><br />'''
-        regex_submenu = '''<a href="(.+?)".+?>(.+?)</a>.+?<img src="(.+?)"'''
+        regex_menu = '''<div class="image">(.+?) <br>'''
+        regex_submenu = '''<a href="(.+?)".+?img src="(.+?)".+?h2>(.+?)</h2'''
         for meniu in re.compile(regex_menu, re.IGNORECASE | re.MULTILINE | re.DOTALL).findall(link):
             match = re.compile(regex_submenu, re.DOTALL).findall(meniu)
-            for legatura, nume, imagine in match:
+            for legatura, imagine, nume in match:
                 nume = striphtml(nume)
                 link_fix = base_url + legatura
                 addDir(nume, link_fix, 5, imagine)
@@ -166,13 +170,29 @@ def parse_menu(url, meniu):
                 nume = striphtml(nume)
                 addDir(nume, legatura, 6, movies_thumb, 'recente')
     elif meniu == 'SerialIT':
-        regex_menu = '''<nav class="nav">.+?Indiene(.+?)</ul>'''
-        regex_submenu = '''href="(.+?)">(.+?)<.+?'''
+        regex_menu = '''<div id="myNa(?:v"|vs")(.+?) </div>.?</div>'''
+        regex_submenu = '''class="catsTdI".+?a href="(.+?)".+?class="abcdD.+?>(.+?)<'''
+        meniu = re.compile(regex_menu, re.IGNORECASE | re.MULTILINE | re.DOTALL).findall(link)
+        match = re.compile(regex_submenu, re.DOTALL).findall((meniu[0] if desf else meniu[1]))
+        for legatura, nume in match:
+            nume = striphtml(nume)
+            addDir(nume, legatura, 6, movies_thumb, 'recente')
+    elif meniu == 'turcesti':
+        regex_menu = '''<div class="eTitle"(.+?)</div></td></tr></table><br />'''
+        regex_submenu = '''<a href="(.+?)".+?>(.+?)</a>'''
         for meniu in re.compile(regex_menu, re.IGNORECASE | re.MULTILINE | re.DOTALL).findall(link):
             match = re.compile(regex_submenu, re.DOTALL).findall(meniu)
             for legatura, nume in match:
-                nume = striphtml(nume)
-                addDir(nume, legatura, 6, movies_thumb, 'recente')
+                addDir(striphtml(nume), base_url + legatura, 5, movies_thumb)
+        match = re.compile('"swchItem"', re.IGNORECASE).findall(link)
+        if len(match) > 0:
+            new = re.compile('/\?page(\d+)').findall(url)
+            if new:
+                nexturl = re.sub('\?page\d+', '?page' + (str(int(new[0]) + 1)), url)
+            else:
+                nexturl = url + '?page2'
+            print "NEXT " + nexturl
+            addNext('Next', nexturl, 6, next_thumb, 'turcesti')
 
 def get_params():
     param = []
