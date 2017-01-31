@@ -1,3 +1,6 @@
+v 0.4.9
+  1. improved detection for aarch64
+
 v 0.4.8
   1. small fix
 

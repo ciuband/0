@@ -35,11 +35,12 @@ class SETTINGS(object):
   ARM64 = False
   
   if sys.platform.startswith('linux'):
+    print sys.maxsize
     if(os.uname()[4][:3] == 'arm'): #not supported by windows
       ARM = True
     elif(os.uname()[4][:3] == 'aar'):
       ARM = True
-      ARM64 = True
+      ARM64 = True if sys.maxsize > 2**32 else False
 
   if ARM == False :
     SPSC = os.path.join(ADDON_PATH, 'bin/linux_x86/sopcast', SPSC_BINARY)

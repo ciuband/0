@@ -427,7 +427,8 @@ def STREAM(name, iconimage, url, protocol, sch_ch_id, ch_id):
           if "aarch" in os.uname()[4]:
               #xbmc.executebuiltin("Notification(%s,%s,%i)" % ("aarch", "", 3000))
               if not os.path.isfile(os.path.join(pastaperfil,"acestream","chroot")):
-                  acestream_pack = "https://raw.githubusercontent.com/viorel-m/kingul-repo/master/acestream/acestream_arm64.tar.gz"
+                  arch = '64' if sys.maxsize > 2**32 else '32'
+                  acestream_pack = "https://raw.githubusercontent.com/viorel-m/kingul-repo/master/acestream/acestream_arm%s.tar.gz" % arch 
                   download_tools().acekit(acestream_pack)
               import acestream as ace
               ace.acestreams_builtin(name,iconimage,url)
