@@ -56,6 +56,11 @@ def SXVIDEO_GENERIC_PLAY(sxurl, icon):
         iconimage = icon
         m3url = match[0][1]
         title = match[0][0]
+    for line in urllib2.urlopen(m3url):
+        if not line.startswith("#") and not line.startswith("\n") and line.endswith("m3u8\n"):
+            new_m3u = line
+            m3url = re.sub((m3url.rsplit('/',1)[-1]), (re.sub("\n","",line)), m3url)
+            break
     ###Big thanks to Shani for this###
     ##################################
     ua = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.80 Safari/537.36"
@@ -63,6 +68,7 @@ def SXVIDEO_GENERIC_PLAY(sxurl, icon):
     s.get("http://drmapi.protv.ro/hlsengine/prepare/")
     play_url = m3url+"|Cookie=PHPSESSID="+s.cookies['PHPSESSID']+";SERVERID="+s.cookies['SERVERID']+";&Origin="+website+"&Referer="+url+"&User-Agent="+ua
     ###################################
+    #with open('/storage/.kodi/temp/files.py', 'wb') as f: f.write(repr(play_url))
     item = xbmcgui.ListItem(title, iconImage=icon, thumbnailImage=icon)
     xbmc.Player().play(play_url, item)
 
