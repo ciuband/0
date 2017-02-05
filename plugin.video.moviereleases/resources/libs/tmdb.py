@@ -57,15 +57,14 @@ def searchmovie(id):
 			response = { "label": cached[2], "originallabel": cached[3], "poster": cached[4], "fanart_image": cached[5], "imdbid": cached[0], "year": cached[6], "info": json.loads(cached[7]) }
 			return response
 	jsonpage = basic.open_url(links.link().tmdb_info_default % (id))
-	if 'tt' in str(id) or getSetting("pref_metadata") == "OMdb":
-            try:
-                jdef = omdbapi.searchmovie(str(id))
-                return jdef
-            except: return False
-	else:
-            try: jdef = json.loads(jsonpage)
-            except: return False
-        
+	try: jdef = json.loads(jsonpage)
+	except:
+		if 'tt' in str(id):
+			try: 
+				jdef = omdbapi.searchmovie(str(id))
+				return jdef
+			except: return False
+		else: return False
 	if LANG <> 'en':
 		try:
 			jsonpage = basic.open_url(links.link().tmdb_info % (id,LANG))

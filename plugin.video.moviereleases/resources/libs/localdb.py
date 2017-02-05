@@ -17,7 +17,7 @@ def create_tables():
 		dbcon = database.connect(addonCache)
 		dbcur = dbcon.cursor()
 		dbcur.execute("CREATE TABLE IF NOT EXISTS indexing (""imdbid TEXT, ""pageid TEXT, ""label TEXT, ""UNIQUE(imdbid)"");")
-		dbcur.execute("CREATE TABLE IF NOT EXISTS cache (""imdbid TEXT, ""tmdbid TEXT, ""label TEXT, ""originallabel TEXT, ""poster TEXT, ""fanart_image TEXT, ""year TEXT, ""info TEXT, ""overlay INTEGER, ""UNIQUE(imdbid)"");")
+		dbcur.execute("CREATE TABLE IF NOT EXISTS cache (""imdbid TEXT, ""tmdbid TEXT, ""label TEXT, ""originallabel TEXT, ""poster TEXT, ""fanart_image TEXT, ""year TEXT, ""info TEXT, ""UNIQUE(imdbid)"");")
 		dbcon.commit()
 	except BaseException as e: basic.log(u"localdb.create_tables ##Error: %s" % str(e))
 	
