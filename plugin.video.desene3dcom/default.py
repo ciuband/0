@@ -19,11 +19,17 @@ except:
     pass
 
 settings = xbmcaddon.Addon(id='plugin.video.desene3dcom')
-
+__addon__ = xbmcaddon.Addon()
+__scriptid__   = __addon__.getAddonInfo('id')
+__scriptname__ = __addon__.getAddonInfo('name')
+__cwd__        = xbmc.translatePath(__addon__.getAddonInfo('path')).decode("utf-8")
+__profile__    = xbmc.translatePath(__addon__.getAddonInfo('profile')).decode("utf-8")
+__resource__   = xbmc.translatePath(os.path.join(__cwd__, 'resources', 'lib')).decode("utf-8")
+__temp__       = xbmc.translatePath(os.path.join(__profile__, 'temp', '')).decode("utf-8")
 search_thumb = os.path.join(settings.getAddonInfo('path'), 'resources', 'media', 'search.png')
 movies_thumb = os.path.join(settings.getAddonInfo('path'), 'resources', 'media', 'movies.png')
 next_thumb = os.path.join(settings.getAddonInfo('path'), 'resources', 'media', 'next.png')
-
+sys.path.append (__resource__)
 
 def ROOT():
     if not mode == 2:
@@ -69,8 +75,17 @@ def CAUTA(url):
 def SXVIDEO_GENERIC_PLAY(sxurl, mname, desc):
     liz = xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=movies_thumb)
     liz.setInfo(type="Video", infoLabels={"Title": mname, "Plot": desc})
-    hmf = urlresolver.HostedMediaFile(url=sxurl, include_disabled=True, include_universal=False)
-    xbmc.Player ().play(hmf.resolve(), liz, False)
+    if 'openload' in sxurl:
+        if sxurl.endswith('/'):
+            ol_id = re.sub('/$','', sxurl).rsplit('/', 1)[-1]
+        else:
+            ol_id = sxurl.rsplit('/', 1)[-1]
+        import ol
+        new_ol = ol.OpenLoadResolver().get_media_url(None, ol_id)
+        xbmc.Player ().play(new_ol, liz, False)
+    else:
+        hmf = urlresolver.HostedMediaFile(url=sxurl, include_disabled=True, include_universal=False) 
+        xbmc.Player ().play(hmf.resolve(), liz, False)
     
 def get_url(url):
     req = urllib2.Request(url)

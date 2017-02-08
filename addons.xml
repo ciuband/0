@@ -351,7 +351,7 @@
 
 <addon id="plugin.video.filmeonline2013biz"
        name="Filmeonline2013.biz"
-       version="1.0.3"
+       version="1.0.4"
        provider-name="kingul">
   <requires>
     <import addon="xbmc.python" version="2.1.0"/>
@@ -411,7 +411,7 @@
 
 <addon id="plugin.video.desene3dcom"
        name="Desene3d.com"
-       version="1.0.2"
+       version="1.0.3"
        provider-name="kingul">
   <requires>
     <import addon="xbmc.python" version="2.1.0"/>
