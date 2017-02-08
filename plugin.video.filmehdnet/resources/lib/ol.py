@@ -18,8 +18,8 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 import re
 import urllib2
-from urlresolver9 import common
-from urlresolver9.resolver import UrlResolver, ResolverError
+from urlresolver import common
+from urlresolver.resolver import UrlResolver, ResolverError
 from HTMLParser import HTMLParser
 import time
 import urllib

@@ -119,7 +119,7 @@
 
 <addon id="plugin.video.filmehdnet"
        name="FilmeHD.net"
-       version="1.0.2"
+       version="1.0.3"
        provider-name="kingul">
   <requires>
     <import addon="xbmc.python" version="2.1.0"/>
@@ -392,7 +392,7 @@
 
 <addon id="plugin.video.hindilovercom"
        name="Hindilover.com"
-       version="1.0.9"
+       version="1.1.0"
        provider-name="kingul">
   <requires>
     <import addon="xbmc.python" version="2.1.0"/>
