@@ -2,13 +2,13 @@ import xbmc, xbmcgui
 from mark_stream import mark_stream
 
 #import glob
-from glob import addon_log, addon
+from common import addon_log, addon
 #from default import DISABLE_SCHEDULE, load_active_event
 
 from settings import SETTINGS
 
 if SETTINGS.DISABLE_SCHEDULE != 'true':
-  from schedule import load_active_event
+  from schedule import epg
 
 class streamplayer(xbmc.Player):
   def __init__( self , *args, **kwargs):
@@ -47,9 +47,10 @@ class streamplayer(xbmc.Player):
 
     if SETTINGS.DISABLE_SCHEDULE!='true':
       #display schedule active event
-      active_event = load_active_event(self.name)
-      active_event = active_event.encode('utf8')
+      epgObj = epg()
+      active_event = epgObj.load_active_event(self.name)
       if active_event:
+        active_event = active_event.encode('utf8')
         xbmc.executebuiltin("Notification(%s,%s,%i)" % (active_event, "", 10000))
 
   def onPlayBackEnded(self):

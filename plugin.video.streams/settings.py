@@ -1,7 +1,7 @@
 import os, sys
 from urlparse import urlparse
 from posixpath import basename, dirname
-from glob import addon, addon_log, is_exe
+from common import addon, addon_log, is_exe
 
 class SETTINGS(object):
 
@@ -35,7 +35,6 @@ class SETTINGS(object):
   ARM64 = False
   
   if sys.platform.startswith('linux'):
-    print sys.maxsize
     if(os.uname()[4][:3] == 'arm'): #not supported by windows
       ARM = True
     elif(os.uname()[4][:3] == 'aar'):

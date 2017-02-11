@@ -326,7 +326,7 @@
 
 <addon id="plugin.video.streams"
        name="Streams"
-       version="0.4.9"
+       version="0.5.3"
        provider-name="Moromete">
   <requires>
     <import addon="xbmc.python" version="2.1.0"/>
@@ -392,7 +392,7 @@
 
 <addon id="plugin.video.hindilovercom"
        name="Hindilover.com"
-       version="1.1.0"
+       version="1.1.1"
        provider-name="kingul">
   <requires>
     <import addon="xbmc.python" version="2.1.0"/>

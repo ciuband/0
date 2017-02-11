@@ -5,7 +5,7 @@ import urllib2
 import subprocess
 
 import glob
-from glob import addon_log, addon, is_exe
+from common import addon_log, addon, is_exe
 from settings import SETTINGS
 from mark_stream import mark_stream
 
@@ -23,20 +23,6 @@ class sopcast():
   def start( self ):
    if xbmc.getCondVisibility('System.Platform.Android'):
        xbmc.executebuiltin('XBMC.StartAndroidActivity("com.devaward.soptohttp","android.intent.action.VIEW","",'+self.sopurl+')')
-       #try:
-       #    InstalledAPK = subprocess.Popen(['exec ''/system/bin/pm list packages -3'''], executable='/system/bin/sh', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()[0].rstrip('\n').splitlines()
-       #except:
-       #    InstalledAPK = []
-
-       #for i in range(len(InstalledAPK)):
-       #    InstalledAPK[i] = InstalledAPK[i].partition(':')[2]
-       #if "com.devaward.soptohttp" in InstalledAPK:
-       #    xbmc.executebuiltin('XBMC.StartAndroidActivity("com.devaward.soptohttp","android.intent.action.VIEW","",'+self.sopurl+')')
-       #elif "org.sopcast.android" in InstalledAPK:
-       #    xbmc.executebuiltin('XBMC.StartAndroidActivity("org.sopcast.android","android.intent.action.VIEW","",'+self.sopurl+')')
-       #else:
-       #   xbmcgui.Dialog().ok("Missing Sop to Http", "Please install:", "1.Sop to Http from Google Play Store (recommended) or:", "2.Sopcast for android")
-       #    xbmc.executebuiltin("Dialog.Close(all,true)")
    else:
     try:
       if(SETTINGS.ARM):

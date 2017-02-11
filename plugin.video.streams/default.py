@@ -8,10 +8,11 @@ import time
 from datetime import datetime, timedelta
 
 from settings import SETTINGS
-from glob import addon_log, addon, Downloader
+from common import addon_log, addon, Downloader, acekit
 
 if SETTINGS.DISABLE_SCHEDULE != 'true':
-  from schedule import grab_schedule, load_schedule
+  #from schedule import grab_schedule, load_schedule
+  from schedule import epg
 
 from streamplayer import streamplayer
 from play_vk_com import grab_vk_stream
@@ -21,54 +22,7 @@ from play_sop import sopcast
 
 addon_id = 'plugin.video.streams'
 settings = xbmcaddon.Addon(id=addon_id)
-addonpath = settings.getAddonInfo('path').decode('utf-8')
-pastaperfil = xbmc.translatePath(settings.getAddonInfo('profile')).decode('utf-8')
-
-class download_tools():
-	def Downloader(self,url,dest,description,heading):
-		dp = xbmcgui.DialogProgress()
-		dp.create(heading,description,'')
-		dp.update(0)
-		urllib.urlretrieve(url,dest,lambda nb, bs, fs, url=url: self._pbhook(nb,bs,fs,dp))
-		
-	def _pbhook(self,numblocks, blocksize, filesize,dp=None):
-		try:
-			percent = int((int(numblocks)*int(blocksize)*100)/int(filesize))
-			dp.update(percent)
-		except:
-			percent = 100
-			dp.update(percent)
-		if dp.iscanceled(): 
-			dp.close()
-	
-	def extract(self,file_tar,destination):
-		dp = xbmcgui.DialogProgress()
-		dp.create("Streams","Extracting module contents. Please wait.")
-		tar = tarfile.open(file_tar)
-		tar.extractall(destination)
-		dp.update(100)
-		tar.close()
-		dp.close()
-		
-	def remove(self,file_):
-		dp = xbmcgui.DialogProgress()
-		dp.create("Streams","Removing files.")
-		os.remove(file_)
-		dp.update(100)
-		dp.close()
-		
-        def acekit(self,acestream_pack):
-                ACE_KIT = os.path.join(addonpath,acestream_pack.split("/")[-1])
-                download_tools().Downloader(acestream_pack,ACE_KIT,"Downloading AceStream modules.","Streams")
-                if tarfile.is_tarfile(ACE_KIT):
-                    path_libraries = os.path.join(pastaperfil)
-		    download_tools().extract(ACE_KIT,path_libraries)
-		    xbmc.sleep(500)
-		    download_tools().remove(ACE_KIT)
-                binary_path = os.path.join(pastaperfil,"acestream","chroot")
-                st = os.stat(binary_path)
-                import stat
-                os.chmod(binary_path, st.st_mode | stat.S_IEXEC)
+fileslist = xbmc.translatePath(settings.getAddonInfo('profile')).decode('utf-8')
 
 
 # try:
@@ -232,7 +186,7 @@ def parse_ch_data():
 
     db_connection.commit()
 
-def CAT_LIST(force=False):
+def CAT_LIST(force=False, mode=None):
   if force==False:
     if not os.path.isfile(SETTINGS.CHAN_LIST):
       addon_log('channels first download')
@@ -262,34 +216,37 @@ def CAT_LIST(force=False):
 
   if len(rec)>0:
     for id, name in rec:
-      addDir(name, str(id), SETTINGS.CHAN_LIST, 1)
+      channelsListMode=1
+      if(mode!=None):
+        name="[COLOR red]"+name+"[/COLOR]"
+        channelsListMode=101
+      addDir(name, str(id), SETTINGS.CHAN_LIST, channelsListMode)
       
   #unverified category
-  if SETTINGS.SHOW_UNVERIFIED == 'true':
-    addDir("[COLOR yellow]"+addon.getLocalizedString(30066)+"[/COLOR]", str(-1), SETTINGS.CHAN_LIST, 1)
+  if ((SETTINGS.SHOW_UNVERIFIED == 'true') and (mode==None)):
+    addDir("[COLOR red]"+addon.getLocalizedString(30066)+"[/COLOR]", str(-1), SETTINGS.CHAN_LIST, 100)
 
   #xbmc.executebuiltin("Container.SetViewMode(500)")
   xbmc.executebuiltin("Container.SetViewMode(51)")
 
-def CHANNEL_LIST(name, cat_id, schedule=False):
+def CHANNEL_LIST(name, cat_id, mode=None, schedule=False):
+  if (SETTINGS.DISABLE_SCHEDULE != 'true'):
+    epgObj = epg()
+    
   addon_log(name);
   rec = []
   try:
-    if(int(cat_id) != -1):
-      db_cursor.execute( 'SELECT id, name, language, status, \
-                          video_resolution, video_aspect, audio_codec, video_codec, \
-                          address, thumbnail, protocol, \
-                          schedule_id, unverified \
-                          FROM channels \
-                          WHERE id_cat = ? and unverified IS NULL', \
-                          (cat_id,) )
+    sql = 'SELECT id, name, language, status, \
+           address, thumbnail, protocol, \
+           schedule_id, unverified \
+           FROM channels \
+           WHERE id_cat = ?'
+    if((mode!=None) and (int(mode)==101)):
+      sql += ' and unverified = 1'
     else:
-      db_cursor.execute( 'SELECT id, name, language, status, \
-                          video_resolution, video_aspect, audio_codec, video_codec, \
-                          address, thumbnail, protocol, \
-                          schedule_id, unverified \
-                          FROM channels \
-                          WHERE unverified = 1')
+      sql += ' and unverified IS NULL'
+    sql += ' ORDER BY name'
+    db_cursor.execute( sql, (cat_id,) )
     rec=db_cursor.fetchall()
   except Exception as inst:
     addon_log(inst)
@@ -297,7 +254,6 @@ def CHANNEL_LIST(name, cat_id, schedule=False):
 
   if len(rec)>0:
     for id, name, language, status, \
-        video_resolution, video_aspect, audio_codec, video_codec, \
         address, thumbnail, protocol, \
         schedule_id, unverified in rec:
 
@@ -310,15 +266,13 @@ def CHANNEL_LIST(name, cat_id, schedule=False):
 
       chan_name = name
       chan_url = address.strip()
-
-      if(protocol == None):
-        protocol = 'http';
+      
       protocol = protocol.strip()
-      if protocol=='sop':
-        protocol_color = '[COLOR yellow]'+protocol+'[/COLOR]'
-      else:
-        protocol_color = '[COLOR yellow]'+protocol+'[/COLOR]'
-          
+      #if protocol=='sop':
+      #  protocol_color = '[COLOR lightgreen]'+protocol+'[/COLOR]'
+      #else:
+      #  protocol_color = '[COLOR yellow]'+protocol+'[/COLOR]'
+                
       chan_thumb = thumbnail.strip()
       #addon_log(chan_thumb)
       chan_status = status
@@ -327,11 +281,9 @@ def CHANNEL_LIST(name, cat_id, schedule=False):
         logo_name = chan_name.replace(' ', '').lower()
         logo_name = logo_name.encode('utf8')
 
-        chan_name_formatted ="[B][COLOR yellow]"+chan_name+"[/COLOR][/B]"
-        chan_name_formatted += " ("+protocol_color
-        if(video_codec != ''):
-          chan_name_formatted += " "+video_codec
-        chan_name_formatted += ")"
+        chan_name_formatted ="[B]"+chan_name+"[/B]"
+        chan_name_formatted += " [[COLOR yellow]"+protocol+"[/COLOR]]"
+        
         if int(chan_status)==1: chan_name_formatted += " [COLOR red]"+addon.getLocalizedString(30063)+"[/COLOR]"  #Offline
 
         thumb_path=""
@@ -365,10 +317,10 @@ def CHANNEL_LIST(name, cat_id, schedule=False):
           elif(addon.getSetting('schedule_ch_list') == 'true'): #update all when we display channel list
             update_all = False
           #addon_log('grab_schedule')
-          grab_schedule(schedule_id, chan_name, update_all=update_all)
+          epgObj.grab_schedule(schedule_id, chan_name, update_all=update_all)
 
         if (SETTINGS.DISABLE_SCHEDULE != 'true') and (int(cat_id) < 200):
-          schedule_txt = load_schedule(chan_name)
+          schedule_txt = epgObj.load_schedule(chan_name)
           chan_name_formatted += "   " + schedule_txt
 
         addLink(id, chan_name_formatted, chan_name, chan_url, protocol, str(schedule_id),
@@ -383,7 +335,8 @@ def STREAM(name, iconimage, url, protocol, sch_ch_id, ch_id):
     return False
 
   if (sch_ch_id != None) and (SETTINGS.DISABLE_SCHEDULE != 'true'):
-    grab_schedule(sch_ch_id, name)
+    epgObj = epg()
+    epgObj.grab_schedule(sch_ch_id, name)
 
   #addon_log(name)
   #addon_log(iconimage)
@@ -426,16 +379,16 @@ def STREAM(name, iconimage, url, protocol, sch_ch_id, ch_id):
           #xbmc.executebuiltin("Notification(%s,%s,%i)" % ("linux", "", 3000))
           if "aarch" in os.uname()[4]:
               #xbmc.executebuiltin("Notification(%s,%s,%i)" % ("aarch", "", 3000))
-              if not os.path.isfile(os.path.join(pastaperfil,"acestream","chroot")):
+              if not os.path.isfile(os.path.join(fileslist,"acestream","chroot")):
                   arch = '64' if sys.maxsize > 2**32 else '32'
                   acestream_pack = "https://raw.githubusercontent.com/viorel-m/kingul-repo/master/acestream/acestream_arm%s.tar.gz" % arch 
-                  download_tools().acekit(acestream_pack)
+                  acekit(acestream_pack)
               import acestream as ace
               ace.acestreams_builtin(name,iconimage,url)
           elif "arm" in os.uname()[4]:
-              if not os.path.isfile(os.path.join(pastaperfil,"acestream","chroot")):
+              if not os.path.isfile(os.path.join(fileslist,"acestream","chroot")):
                   acestream_pack = "https://raw.githubusercontent.com/viorel-m/kingul-repo/master/acestream/acestream_arm32.tar.gz"
-                  download_tools().acekit(acestream_pack)
+                  acekit(acestream_pack)
               import acestream as ace
               ace.acestreams_builtin(name,iconimage,url)
   
@@ -522,10 +475,10 @@ except:
   ch_id=None
 
 addon_log(mode)
-if mode==None: #list categories
-  CAT_LIST()
-elif mode==1:  #list channels
-  CHANNEL_LIST(name, cat_id)
+if ((mode==None) or (mode==100)): #list categories
+  CAT_LIST(mode=mode)
+elif ((mode==1) or (mode==101)):  #list channels
+  CHANNEL_LIST(name=name, cat_id=cat_id, mode=mode)
 elif mode==2:  #play stream
   if xbmc.Player().isPlaying():
     #stop_spsc()
@@ -551,13 +504,14 @@ elif mode==2:  #play stream
     STREAM(name, iconimage, url, protocol, sch_ch_id, ch_id)
 elif mode==3:  #refresh schedule
   if sch_ch_id != None:
-    grab_schedule(sch_ch_id, name, force=True)
+    epgObj = epg()
+    epgObj.grab_schedule(sch_ch_id, name, force=True)
     xbmc.executebuiltin('Container.Refresh()')
 elif mode==4:  #refresh channel list
   CAT_LIST(force=True)
   xbmc.executebuiltin('Container.Refresh()')
 elif mode==5:  #refresh all schedules
-  CHANNEL_LIST(name, cat_id, schedule=True)
+  CHANNEL_LIST(name=name, cat_id=cat_id, schedule=True)
   xbmc.executebuiltin('Container.Refresh()')
 #elif mode==6:  #EPG
 #  addon_log('epg');

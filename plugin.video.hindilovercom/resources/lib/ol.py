@@ -18,12 +18,11 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 import re
 import urllib2
-from urlresolver9 import common
-from urlresolver9.resolver import UrlResolver, ResolverError
 from HTMLParser import HTMLParser
 import time
 import urllib
 import base64
+from net import Net
 
 try:
     import ssl
@@ -38,35 +37,33 @@ try:
 except NameError:
     compat_chr = chr
 #urllib2.urlopen("https://your-test-server.local", context=ctx)
-
-class OpenLoadResolver(UrlResolver):
+ua = 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:49.0) Gecko/20100101 Firefox/49.0'
+class OpenLoadResolver:
     name = "openload"
     domains = ["openload.io", "openload.co"]
     pattern = '(?://|\.)(openload\.(?:io|co))/(?:embed|f)/([0-9a-zA-Z-_]+)'
 
     def __init__(self):
-        self.net = common.Net()
+        self.net = Net()
 
     def get_media_url(self, host, media_id):
         try:
 
             myurl = 'http://openload.co/embed/%s' % media_id
-            HTTP_HEADER = {'User-Agent': common.FF_USER_AGENT,'Referer': myurl}  # 'Connection': 'keep-alive'
+            HTTP_HEADER = {'User-Agent': ua,'Referer': myurl}  # 'Connection': 'keep-alive'
 
             response = self.net.http_GET(myurl, headers=HTTP_HEADER)
             html = response.content
             #common.log_utils.log_notice('1 openload html: %s' % (html))
             mylink = self.get_mylink(html)
             HTTP_HEADER = {'Cookie': response.get_headers(as_dict=True).get('Set-Cookie', ''),
-                       'User-Agent': common.FF_USER_AGENT, 'Referer':myurl}
+                       'User-Agent': ua, 'Referer':myurl}
 
             if set('[<>=!@#$%^&*()+{}":;\']+$').intersection(mylink):
-                common.log_utils.log_notice('############################## ERROR A openload mylink: %s' % (mylink))
                 time.sleep(2)
                 html = self.net.http_GET(myurl, headers=HTTP_HEADER).content
                 mylink = self.get_mylink(html)
                 if set('[<>=!@#$%^&*()+{}":;\']+$').intersection(mylink):
-                    common.log_utils.log_notice('############################## ERROR A openload mylink: %s' % (mylink))
                     time.sleep(2)
                     html = self.net.http_GET(myurl, headers=HTTP_HEADER).content
                     mylink = self.get_mylink(html)
@@ -74,7 +71,6 @@ class OpenLoadResolver(UrlResolver):
             #common.log_utils.log_notice('A openload mylink: %s' % mylink)
             #print "Mylink", mylink, urllib.quote_plus(mylink)
             videoUrl = 'http://openload.co/stream/{0}?mime=true'.format(mylink)
-            common.log_utils.log_notice('A openload resolve parse: %s' % videoUrl)
 
             req = urllib2.Request(videoUrl, None, HTTP_HEADER)
             try:
@@ -92,7 +88,6 @@ class OpenLoadResolver(UrlResolver):
 
 
         except Exception as e:
-            common.log_utils.log_notice('Exception during openload resolve parse: %s' % e)
             print("Error", e)
             raise
 

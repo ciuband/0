@@ -1,3 +1,11 @@
+v 0.5.3
+  1. merge changes from Moromete:
+    a. add new EPG provider
+    b. classify unverified channels
+    c. improve epg download to use cache if multiple requests are done in the same day
+    d. Channels names leave color unchanged (made by skin default to avoid conflicts with skin color)
+    e. remove video codec from channel name
+
 v 0.4.9
   1. improved detection for aarch64
 
