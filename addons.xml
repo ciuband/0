@@ -18,6 +18,31 @@
   </extension>
 </addon>
 
+<addon id="plugin.video.streams-fork"
+       name="Streams-fork"
+       version="0.5.4"
+       provider-name="Moromete, Kingul">
+  <requires>
+    <import addon="xbmc.python" version="2.1.0"/>
+    <import addon="script.module.pytz"/>
+  </requires>
+  <extension point="xbmc.python.pluginsource"
+             library="default.py">
+    <provides>video</provides>
+  </extension>
+  <extension point="xbmc.addon.metadata">
+    <summary>
+      Radio/Tv Streams
+    </summary>
+    <description>
+      Radio/Tv Streams
+      - Watch internet video/audio streams (sopcast, acestream, http, rtmp, rtsp, mms ...) based on a remote channel list.
+      http://streams.magazinmixt.ro
+    </description>
+    <platform>all</platform>
+  </extension>
+</addon>
+
 <addon id="plugin.video.tvmaniabgcom"
        name="TVManiaBG.com"
        version="1.0.0"
@@ -320,31 +345,6 @@
   <extension point="xbmc.addon.metadata">
     <summary>Filme online de la trilulilu.ro</summary>
     <description>Urmareste videoclipuri de pe trilulilu.ro</description>
-    <platform>all</platform>
-  </extension>
-</addon>
-
-<addon id="plugin.video.streams"
-       name="Streams"
-       version="0.5.3"
-       provider-name="Moromete">
-  <requires>
-    <import addon="xbmc.python" version="2.1.0"/>
-    <import addon="script.module.pytz"/>
-  </requires>
-  <extension point="xbmc.python.pluginsource"
-             library="default.py">
-    <provides>video</provides>
-  </extension>
-  <extension point="xbmc.addon.metadata">
-    <summary>
-      Radio/Tv Streams
-    </summary>
-    <description>
-      Radio/Tv Streams
-      - Watch internet video/audio streams (sopcast, acestream, http, rtmp, rtsp, mms ...) based on a remote channel list.
-      http://streams.magazinmixt.ro
-    </description>
     <platform>all</platform>
   </extension>
 </addon>
