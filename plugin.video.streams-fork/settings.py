@@ -78,5 +78,8 @@ class SETTINGS(object):
   PRODUCT_KEY='n51LvQoTlJzNGaFxseRK-uvnvX-sD4Vm5Axwmc4UcoD-jruxmKsuJaH0eVgE' #aceproxy
   ACE_HOST = addon.getSetting('ace_host')
   ACE_PORT = int(addon.getSetting('ace_port'))
-  ACE_ENGINE_TYPE = int(addon.getSetting('ace_engine_type'))
+  try:
+    ACE_ENGINE_TYPE = int(addon.getSetting('ace_engine_type'))
+  except:
+    ACE_ENGINE_TYPE = 0
   ##########################################################
