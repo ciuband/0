@@ -10,6 +10,10 @@ import xbmc
 import xbmcaddon
 import xbmcgui
 import xbmcplugin
+try:
+    from urllib.parse import urlparse
+except:
+    from urlparse import urlparse
 
 
 website = 'http://www.digi24.ro'
@@ -52,9 +56,9 @@ def CAUTA(url, autoSearch=None):
     parse_menu(get_search_url(search_string), 'search', urllib.quote_plus(search_string))
 
 
-def SXVIDEO_GENERIC_PLAY(sxurl):
+def SXVIDEO_GENERIC_PLAY(sxurl1):
     f = HTMLParser.HTMLParser()
-    sxurl = f.unescape(sxurl)
+    sxurl = f.unescape(sxurl1)
     link = get_search(sxurl)
     match = re.compile('(itemprop="headline">(.+?)<|<h1 class="h3">(.+?)<).+?source":"(.+?)"', re.IGNORECASE | re.MULTILINE | re.DOTALL).findall(link)
     # match2=re.compile('<meta property="og:title" content="(.+?)".+?\n\s*.+?content="(.+?)"', re.IGNORECASE|re.MULTILINE|re.DOTALL).findall(link)
@@ -68,12 +72,13 @@ def SXVIDEO_GENERIC_PLAY(sxurl):
 	else:
             title = match[0][2]
         #iconimage = "DefaultVideo.png"
-        #f = open('/storage/.kodi/temp/files.py', 'w')
-        #f.write('match = ' + repr(path) + '\n')
-        #f.close()
-        item = xbmcgui.ListItem(path=path)
+        ua = 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.11 (KHTML, like Gecko) Chrome/17.0.963.56 Safari/535.11'
+        hst = urlparse(sxurl1)
+        al = 'Accept-Language: ro,en-US;q=0.7,en;q=0.3'
+        playurl = path+"|Referer=%s&User-Agent=%s&Accept-Language=%s&Accept=video/webm,video/ogg,video/*;q=0.9,application/ogg;q=0.7,audio/*;q=0.6,*/*;q=0.5&Host=%s&Range=bytes=6291456-" % (sxurl1, ua, al, hst.netloc)
+        item = xbmcgui.ListItem(path=playurl)
         item.setInfo('video', {'Title': title, 'Plot': title})
-        xbmc.Player().play(path, item)
+        xbmc.Player().play(playurl, item)
 
 
 def get_url(url):
@@ -173,6 +178,11 @@ def addDir(name, url, mode, iconimage, meniu=None, descript=None):
         # link = get_search(url)
     return ok
 
+def get_link(opener, program, key, tip):
+    link = 'http://balancer.digi24.ro/streamer.php?&scope=%s&key=%s&outputFormat=json&type=%s&quality=hq' % (program, str(key.read()), tip)
+    file = opener.open(link).read()
+    infos = json.loads(file)
+    return infos['file']
 
 def parse_menu(url, meniu, searchterm=None):
     if url is None:
@@ -190,7 +200,6 @@ def parse_menu(url, meniu, searchterm=None):
         link = get_search(url)
         regex = '''<article class="card col-xs-3">(.+?)</article>'''
         regex_art = '''<figure class="card-img.+?<a href="(.+?)".+? dat.+?"(.+?)".+?title=".+?">(.+?)<'''
-        # match=re.compile('<figure class="card-img.+?<a href="(.+?)">.+? dat.+?"(.+?)".+?card-title">(.+?)<', re.IGNORECASE|re.MULTILINE|re.DOTALL).findall(link)
         for art in re.compile(regex, re.IGNORECASE | re.MULTILINE | re.DOTALL).findall(link):
             result = re.compile(regex_art, re.DOTALL).findall(art)
             if result:
@@ -209,7 +218,6 @@ def parse_menu(url, meniu, searchterm=None):
         link = get_search(url)
         regex = '''<article class="card col.+?">(.+?)</article>'''
         regex_art = '''<figure class="card-img.+?<a href="(.+?)".+?title="(.+?)".+?<img src="(.+?)"'''
-        # match=re.compile('<figure class="card-img.+?<a href="(.+?)">.+? dat.+?"(.+?)".+?card-title">(.+?)<', re.IGNORECASE|re.MULTILINE|re.DOTALL).findall(link)
         for art in re.compile(regex, re.IGNORECASE | re.MULTILINE | re.DOTALL).findall(link):
             result = re.compile(regex_art, re.DOTALL).findall(art)
             if result:
@@ -231,9 +239,6 @@ def parse_menu(url, meniu, searchterm=None):
                 nexturl = re.sub('\?p=(\d+)', '?p=' + str(pagen), url)
             else:
                 nexturl = url + '?p=2'
-            #f = open( '/storage/.kodi/temp/files.py', 'w' )
-            #f.write( 'match = ' + repr(str(nexturl)) + '\n' )
-            #f.close()
             addNext('Next', nexturl, 23, next_thumb, 'emisiuni_link')
     elif meniu == 'search':
         link = get_search(url)
@@ -253,23 +258,26 @@ def parse_menu(url, meniu, searchterm=None):
                 nexturl = url + '&p=2'
             addNext('Next', nexturl, 23, next_thumb, 'search')
     elif meniu == 'live':
+        ua = 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.11 (KHTML, like Gecko) Chrome/17.0.963.56 Safari/535.11'
         link = get_search(url)
         match = re.compile('"scope":"(.+?)"').findall(link)
         if len(match) > 0:
             print match
         opener = urllib2.build_opener()
-        opener.addheaders = [('User-agent', 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.11 (KHTML, like Gecko) Chrome/17.0.963.56 Safari/535.11'),
-            ('Host', 's2.220.t1.ro'),
+        opener.addheaders = [('User-agent', ua),
+            ('Host', 'balancer.digi24.ro'),
             ('Referer', url)]
         make_key = opener.open('http://balancer.digi24.ro/streamer/make_key.php')
-        link = 'http://balancer.digi24.ro/streamer.php?&scope=' + match[0] + '&key=' + str(make_key.read()) + '&outputFormat=json&type=hls&quality=hq'
-        file = opener.open(link).read()
-        infos = json.loads(file)
-        result = infos['file']
+        try: result = get_link(match[0], make_key, 'abr')
+        except: result = get_link(opener, match[0], make_key, 'hls')
+        hst = urlparse(result)
+        rfr = 'http://www.digi24.ro/static/js/vendor/jwplayer-7.2.2-lincenced/jwplayer.flash.swf'
+        al = 'Accept-Language: ro,en-US;q=0.7,en;q=0.3'
+        playurl = result+"|Referer=%s&User-Agent=%s&Accept-Language=%s&Accept-Encoding=gzip, deflate&Host=%s" % (rfr, ua, al, hst.netloc)
         imagine = "DefaultFolder.png"
-        item = xbmcgui.ListItem(path=result)
+        item = xbmcgui.ListItem(path=playurl)
         item.setInfo('video', {'Title': match[0]})
-        xbmc.Player().play(result, item)
+        xbmc.Player().play(playurl, item)
     xbmcplugin.setContent(int(sys.argv[1]), 'movies')
 
 

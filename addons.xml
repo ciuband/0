@@ -163,7 +163,7 @@
 
 <addon id="plugin.video.digi24"
        name="Digi24"
-       version="1.1.6"
+       version="1.1.7"
        provider-name="kingul">
   <requires>
     <import addon="xbmc.python" version="2.1.0"/>
