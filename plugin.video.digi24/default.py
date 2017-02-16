@@ -268,7 +268,7 @@ def parse_menu(url, meniu, searchterm=None):
             ('Host', 'balancer.digi24.ro'),
             ('Referer', url)]
         make_key = opener.open('http://balancer.digi24.ro/streamer/make_key.php')
-        try: result = get_link(match[0], make_key, 'abr')
+        try: result = get_link(opener, match[0], make_key, 'abr')
         except: result = get_link(opener, match[0], make_key, 'hls')
         hst = urlparse(result)
         rfr = 'http://www.digi24.ro/static/js/vendor/jwplayer-7.2.2-lincenced/jwplayer.flash.swf'
