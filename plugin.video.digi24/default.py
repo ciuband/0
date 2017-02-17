@@ -28,7 +28,7 @@ next_thumb = os.path.join(settings.getAddonInfo('path'), 'resources', 'media', '
 def ROOT():
     addDir('Video', 'http://www.digi24.ro/video', 23, movies_thumb, 'emisiuni_link')
     addDir('Emisiuni', 'http://www.digi24.ro/emisiuni', 23, movies_thumb, 'emisiuni')
-    addDir('Emisiuni exclusiv online', 'http://www.digi24.ro/video/emisiuni/exclusiv-online', 23, movies_thumb, 'emisiuni_link')
+    #addDir('Emisiuni exclusiv online', 'http://www.digi24.ro/video/emisiuni/exclusiv-online', 23, movies_thumb, 'emisiuni_link')
     addDir('24 Minute', 'http://www.digi24.ro/video/emisiuni/exclusiv-online/24-minute', 23, movies_thumb, 'emisiuni_link')
     addDir('Live Digi24', 'http://www.digi24.ro/live/digi24', 23, movies_thumb, 'live')
     addDir('Live Digi24 Brasov', 'http://www.digi24.ro/live/digi24-brasov', 23, movies_thumb, 'live')
@@ -60,25 +60,34 @@ def SXVIDEO_GENERIC_PLAY(sxurl1):
     f = HTMLParser.HTMLParser()
     sxurl = f.unescape(sxurl1)
     link = get_search(sxurl)
-    match = re.compile('(itemprop="headline">(.+?)<|<h1 class="h3">(.+?)<).+?source":"(.+?)"', re.IGNORECASE | re.MULTILINE | re.DOTALL).findall(link)
-    # match2=re.compile('<meta property="og:title" content="(.+?)".+?\n\s*.+?content="(.+?)"', re.IGNORECASE|re.MULTILINE|re.DOTALL).findall(link)
+    match = re.compile('(?:itemprop="headline"|<h1 class="h3")>(.+?)<.+?text/template">{(.+?)}}}', re.IGNORECASE | re.MULTILINE | re.DOTALL).findall(link)
+    qual = settings.getSetting('stream_quality')
     if len(match) > 0:
-        # if len(match2) > 0:
-        # var player_config.+?\n\s*.+?\n\s*"url": "(.+?)",(\n\s*.+?){15}url": "(.+?)",\n\s*.+?netConnectionUrl": \'(.+?)\'
-        path = str(match[0][3])
-        path = re.sub('\\\\', '', path)
-        if match[0][1]:
-            title = match[0][1]
-	else:
-            title = match[0][2]
+        path = '{' + match[0][1] + '}}}'
+        path = json.loads(path)
+        if qual == '0' or qual == '1':
+            path = path['new-info']['meta']['versions'].items()
+            if qual == '1':
+                if path:
+                    dialog = xbmcgui.Dialog()
+                    sel = dialog.select("Select item",
+                                        [re.sub('.mp4', '', quality) for quality,url in path])
+                    if sel >= 0:
+                        play_path = path[int(sel)][1]
+                    else: return
+            elif qual == '0':
+                if path:
+                    play_path = path[0][1]
+        else:
+            if qual == '2': play_path = path['new-info']['meta']['versions']['240p.mp4']
+            elif qual == '3': play_path = path['new-info']['meta']['versions']['480p.mp4']
+            elif qual == '4': play_path = path['new-info']['meta']['versions']['720p.mp4']
+            
+        title = match[0][0]
         #iconimage = "DefaultVideo.png"
-        ua = 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.11 (KHTML, like Gecko) Chrome/17.0.963.56 Safari/535.11'
-        hst = urlparse(sxurl1)
-        al = 'Accept-Language: ro,en-US;q=0.7,en;q=0.3'
-        playurl = path+"|Referer=%s&User-Agent=%s&Accept-Language=%s&Accept=video/webm,video/ogg,video/*;q=0.9,application/ogg;q=0.7,audio/*;q=0.6,*/*;q=0.5&Host=%s&Range=bytes=6291456-" % (sxurl1, ua, al, hst.netloc)
-        item = xbmcgui.ListItem(path=playurl)
+        item = xbmcgui.ListItem(path=play_path)
         item.setInfo('video', {'Title': title, 'Plot': title})
-        xbmc.Player().play(playurl, item)
+        xbmc.Player().play(play_path, item)
 
 
 def get_url(url):
