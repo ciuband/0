@@ -1,3 +1,6 @@
+1.1.2
+fix some ol links
+
 1.1.1
 simplify
 
