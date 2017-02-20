@@ -1,19 +1,14 @@
-import HTMLParser
+# -*- coding: utf-8 -*-
 import cookielib
 import json
 import os
 import re
 import sys
 import urllib
-import urllib2
 import xbmc
 import xbmcaddon
 import xbmcgui
 import xbmcplugin
-try:
-    from urllib.parse import urlparse
-except:
-    from urlparse import urlparse
 
 
 website = 'http://www.digi24.ro'
@@ -23,7 +18,10 @@ settings = xbmcaddon.Addon(id='plugin.video.digi24')
 search_thumb = os.path.join(settings.getAddonInfo('path'), 'resources', 'media', 'search.png')
 movies_thumb = os.path.join(settings.getAddonInfo('path'), 'resources', 'media', 'movies.png')
 next_thumb = os.path.join(settings.getAddonInfo('path'), 'resources', 'media', 'next.png')
-
+libs = xbmc.translatePath(os.path.join(settings.getAddonInfo('path'), 'resources', 'lib'))
+ua = 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:48.0) Gecko/20100101 Firefox/48.0'
+sys.path.append (libs)
+import requests
 
 def ROOT():
     addDir('Video', 'http://www.digi24.ro/video', 23, movies_thumb, 'emisiuni_link')
@@ -57,8 +55,7 @@ def CAUTA(url, autoSearch=None):
 
 
 def SXVIDEO_GENERIC_PLAY(sxurl1):
-    f = HTMLParser.HTMLParser()
-    sxurl = f.unescape(sxurl1)
+    sxurl = parser(sxurl1)
     link = get_search(sxurl)
     match = re.compile('(?:itemprop="headline"|<h1 class="h3")>(.+?)<.+?text/template">{(.+?)}}}', re.IGNORECASE | re.MULTILINE | re.DOTALL).findall(link)
     qual = settings.getSetting('stream_quality')
@@ -91,12 +88,10 @@ def SXVIDEO_GENERIC_PLAY(sxurl1):
 
 
 def get_url(url):
-    req = urllib2.Request(url)
-    req.add_header('User-Agent', 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:48.0) Gecko/20100101 Firefox/48.0')
+    header = {'User-Agent': ua}
     try:
-        response = urllib2.urlopen(req)
-        link = response.read()
-        response.close()
+        response = requests.get(url, headers=header)
+        link = response.text
         return link
     except:
         return False
@@ -108,16 +103,12 @@ def get_search_url(keyword, offset=None):
 
 
 def get_search(url):
-    f = HTMLParser.HTMLParser()
-    url = f.unescape(url)
-    cj = cookielib.CookieJar()
-    opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
-    opener.addheaders = [('User-Agent', 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:48.0) Gecko/20100101 Firefox/48.0'),
-        ('Content-type', 'application/x-www-form-urlencoded'),
-        ]
+    url = parser(url)
+    header = {'User-Agent': ua,
+              'Content-type': 'application/x-www-form-urlencoded'}
     try:
-        response = opener.open(url)
-        link = response.read()
+        response = requests.get(url, headers=header)
+        link = response.text
         return link
     except:
         return False
@@ -144,7 +135,7 @@ def get_params():
 
 def sxaddLink(name, url, iconimage, movie_name, mode=4, descript=None):
     ok = True
-    u = sys.argv[0] + "?url=" + urllib.quote_plus(url) + "&mode=" + str(mode) + "&name=" + urllib.quote_plus(name)
+    u = sys.argv[0] + "?url=" + urllib.quote_plus(url) + "&mode=" + str(mode) + "&name=" + name
     liz = xbmcgui.ListItem(name, iconImage="DefaultVideo.png", thumbnailImage=iconimage)
     if descript is not None:
         liz.setInfo(type="Video", infoLabels={"Title": movie_name, "Plot": descript})
@@ -170,8 +161,9 @@ def addDir(name, url, mode, iconimage, meniu=None, descript=None):
     # f = HTMLParser.HTMLParser()
     # linkem = f.unescape(url)
     iconimage = urllib.unquote(urllib.unquote(iconimage))
-    u = sys.argv[0] + "?url=" + urllib.quote_plus(url) + "&mode=" + str(mode) + "&name=" + urllib.quote_plus(name)
-    liz = xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=iconimage)
+    u = sys.argv[0] + "?url=" + urllib.quote_plus(url) + "&mode=" + str(mode) + "&name=" + name
+    liz = xbmcgui.ListItem(urllib.unquote(name), iconImage="DefaultFolder.png", thumbnailImage=iconimage)
+    
     if meniu is not None:
         u += "&meniu=" + urllib.quote_plus(meniu)
     if descript is not None:
@@ -187,11 +179,35 @@ def addDir(name, url, mode, iconimage, meniu=None, descript=None):
         # link = get_search(url)
     return ok
 
-def get_link(opener, program, key, tip):
-    link = 'http://balancer.digi24.ro/streamer.php?&scope=%s&key=%s&outputFormat=json&type=%s&quality=hq' % (program, str(key.read()), tip)
-    file = opener.open(link).read()
-    infos = json.loads(file)
-    return infos['file']
+def parser(txt):
+    newdict = {
+    '&abreve;': u'ă',
+    '&period;': '.',
+    '&sol;': '/',
+    '&vert;': '|',
+    '&comma;': ',',
+    '&colon;': ':',
+    '&bdquo;': '"',
+    '&rdquo;': '"',
+    '&icirc;': u'î',
+    '&acirc;': u'â',
+    '&Icirc;': u'Î'
+    }
+    newtxt = re.compile('|'.join(newdict.keys()))
+    result = newtxt.sub(lambda m: newdict[m.group(0)], txt)
+    return result
+
+def get_link(s, program, key, tip):
+    link = 'http://balancer.digi24.ro/streamer.php?&scope=%s&key=%s&outputFormat=json&type=%s&quality=hq' % (program, str(key.text), tip)
+    files = s.get(link)
+    infos = json.loads(files.text)
+    url = s.get(infos['file'])
+    for line in url.text.split('\n'):
+        if not line.startswith("#"):
+            newurl = re.sub(infos['file'].rsplit('/',1)[-1], line, infos['file'])
+            #with open('/root/.kodi/temp/files.py', 'wb') as f: f.write(repr(newurl))
+            return newurl
+            break
 
 def parse_menu(url, meniu, searchterm=None):
     if url is None:
@@ -201,7 +217,7 @@ def parse_menu(url, meniu, searchterm=None):
         match = re.compile('<figure class="card-img.+?<a href="(.+?)">.+? dat.+?"(.+?)".+?card-title">(.+?)<', re.IGNORECASE | re.MULTILINE | re.DOTALL).findall(link)
         for legatura, imagine, nume in match:
             linkem = website + legatura
-            nume = re.sub(' +', ' ', nume)
+            nume = parser(re.sub(' +', ' ', nume))
             descriere = nume
             sxaddLink(nume, linkem, imagine, nume, 10, descriere)
     elif meniu == 'emisiuni':
@@ -219,7 +235,7 @@ def parse_menu(url, meniu, searchterm=None):
                              ))
         for legatura, imagine, nume in match:
             linkem = website + legatura
-            nume = re.sub(' +', ' ', nume)
+            nume = re.sub(' +', ' ', parser(nume))
             descriere = nume
             addDir(nume, linkem, 23, imagine, 'emisiuni_link')
     elif meniu == 'emisiuni_link':
@@ -233,7 +249,7 @@ def parse_menu(url, meniu, searchterm=None):
                 (legatura, nume, imagine) = result[0]
                 match.append((legatura,
                              imagine,
-                             nume,
+                             parser(nume),
                              ))
         for legatura, imagine, nume in match:
             linkem = website + legatura
@@ -256,7 +272,7 @@ def parse_menu(url, meniu, searchterm=None):
             print match
         for legatura, imagine, nume, descriere in match:
             linkem = website + legatura
-            sxaddLink(nume, linkem, imagine, nume, 10, descriere)
+            sxaddLink(nume, linkem, imagine, urllib.quote_plus(nume), 10, descriere)
         match = re.compile('\&p=', re.IGNORECASE | re.MULTILINE | re.DOTALL).findall(link)
         if len(match) > 0:
             page_num = re.compile('\&p=(.+?)', re.IGNORECASE).findall(str(url))
@@ -267,26 +283,30 @@ def parse_menu(url, meniu, searchterm=None):
                 nexturl = url + '&p=2'
             addNext('Next', nexturl, 23, next_thumb, 'search')
     elif meniu == 'live':
-        ua = 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.11 (KHTML, like Gecko) Chrome/17.0.963.56 Safari/535.11'
+        s = requests.Session()
+        ua = 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:48.0) Gecko/20100101 Firefox/48.0'
         link = get_search(url)
         match = re.compile('"scope":"(.+?)"').findall(link)
         if len(match) > 0:
             print match
-        opener = urllib2.build_opener()
-        opener.addheaders = [('User-agent', ua),
-            ('Host', 'balancer.digi24.ro'),
-            ('Referer', url)]
-        make_key = opener.open('http://balancer.digi24.ro/streamer/make_key.php')
-        try: result = get_link(opener, match[0], make_key, 'abr')
-        except: result = get_link(opener, match[0], make_key, 'hls')
-        hst = urlparse(result)
-        rfr = 'http://www.digi24.ro/static/js/vendor/jwplayer-7.2.2-lincenced/jwplayer.flash.swf'
-        al = 'Accept-Language: ro,en-US;q=0.7,en;q=0.3'
-        playurl = result+"|Referer=%s&User-Agent=%s&Accept-Language=%s&Accept-Encoding=gzip, deflate&Host=%s" % (rfr, ua, al, hst.netloc)
-        imagine = "DefaultFolder.png"
-        item = xbmcgui.ListItem(path=playurl)
-        item.setInfo('video', {'Title': match[0]})
-        xbmc.Player().play(playurl, item)
+            headers = {'User-agent': ua,
+                'Host': 'balancer.digi24.ro',
+                'Accept': '*/*',
+                'Accept-Language': 'ro,en-US;q=0.7,en;q=0.3',
+                'Accept-Encoding': 'gzip, deflate',
+                'Origin': 'http://www.digi.24.ro',
+                'Referer': url}
+            make_key = s.get('http://balancer.digi24.ro/streamer/make_key.php', headers=headers)
+            try: result = get_link(s, match[0], make_key, 'abr')
+            except: result = get_link(s, match[0], make_key, 'hls')
+            #hst = urlparse(result)
+            rfr = 'http://www.digi24.ro/static/js/vendor/jwplayer-7.2.2-lincenced/jwplayer.flash.swf'
+            al = 'ro,en-US;q=0.7,en;q=0.3'
+            playurl = result+"|Referer=%s&User-Agent=%s&Accept-Language=%s&Accept-Encoding=gzip, deflate" % (rfr, ua, al)
+            imagine = "DefaultFolder.png"
+            item = xbmcgui.ListItem(path=playurl)
+            item.setInfo('video', {'Title': match[0]})
+            xbmc.Player().play(playurl, item)
     xbmcplugin.setContent(int(sys.argv[1]), 'movies')
 
 

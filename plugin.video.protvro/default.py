@@ -2,7 +2,6 @@ import os
 import re
 import sys
 import urllib
-import urllib2
 import xbmc
 import xbmcaddon
 import xbmcgui
@@ -12,18 +11,15 @@ import xbmcplugin
 website = 'http://protvplus.ro'
 
 __addon__ = xbmcaddon.Addon()
-__scriptid__   = __addon__.getAddonInfo('id')
-__scriptname__ = __addon__.getAddonInfo('name')
 __cwd__        = xbmc.translatePath(__addon__.getAddonInfo('path')).decode("utf-8")
-__profile__    = xbmc.translatePath(__addon__.getAddonInfo('profile')).decode("utf-8")
 __resource__   = xbmc.translatePath(os.path.join(__cwd__, 'resources', 'lib')).decode("utf-8")
-__temp__       = xbmc.translatePath(os.path.join(__profile__, 'temp', '')).decode("utf-8")
 search_thumb   = xbmc.translatePath(os.path.join(__cwd__, 'resources', 'media', 'search.png')).decode("utf-8")
 movies_thumb   = xbmc.translatePath(os.path.join(__cwd__, 'resources', 'media', 'movies.png')).decode("utf-8")
 next_thumb   = xbmc.translatePath(os.path.join(__cwd__, 'resources', 'media', 'next.png')).decode("utf-8")
 
 sys.path.append (__resource__)
-
+import requests
+ua = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.80 Safari/537.36"
 
 def ROOT():
     addDir('Seriale', 'http://protvplus.ro/', 23, movies_thumb, 'seriale')
@@ -45,59 +41,42 @@ def CAUTA(url, autoSearch=None):
     
     parse_menu(get_search_url(search_string), 'emlink')
     
-def SXVIDEO_GENERIC_PLAY(sxurl, icon):
+def play_video(sxurl, icon):
     print "icon = " + icon
-    import requests
     s = requests.Session()
     url = website + sxurl
     link = get_search(url)
-    match = re.compile('<meta property="og:title" content="(.+?)".+?clipSource =.+?"(.+?)"', re.IGNORECASE | re.MULTILINE | re.DOTALL).findall(link)
-    if len(match) > 0:
-        iconimage = icon
-        m3url = match[0][1]
-        title = match[0][0]
-    for line in urllib2.urlopen(m3url):
-        if not line.startswith("#") and not line.startswith("\n") and line.endswith("m3u8\n"):
-            new_m3u = line
-            m3url = re.sub((m3url.rsplit('/',1)[-1]), (re.sub("\n","",line)), m3url)
-            break
-    ###Big thanks to Shani for this###
-    ##################################
-    ua = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.80 Safari/537.36"
-    headers = {'User-Agent': ua, 'Referer': url}
-    s.get("http://drmapi.protv.ro/hlsengine/prepare/")
-    play_url = m3url+"|Cookie=PHPSESSID="+s.cookies['PHPSESSID']+";SERVERID="+s.cookies['SERVERID']+";&Origin="+website+"&Referer="+url+"&User-Agent="+ua
-    ###################################
-    #with open('/storage/.kodi/temp/files.py', 'wb') as f: f.write(repr(play_url))
-    item = xbmcgui.ListItem(title, iconImage=icon, thumbnailImage=icon)
-    xbmc.Player().play(play_url, item)
-
-    
-def get_url(url):
-    req = urllib2.Request(url)
-    req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.80 Safari/537.36')
     try:
-        response = urllib2.urlopen(req)
-        link = response.read()
-        response.close()
-        return link
+        match = re.compile('<meta property="og:title" content="(.+?)".+?clipSource =.+?"(.+?)"', re.IGNORECASE | re.MULTILINE | re.DOTALL).findall(link)
+        if len(match) > 0:
+            m3url = match[0][1]
+            title = match[0][0]
+            for line in requests.get(m3url).text.split('\n'):
+                if not line.startswith("#") and len(line) > 0:
+                    m3url = re.sub((m3url.rsplit('/', 1)[-1]), (re.sub("\n", "", line)), m3url)
+                    break
+        ###Big thanks to Shani for this###
+        ##################################
+            headers = {'User-Agent': ua, 'Referer': url}
+            s.get("http://drmapi.protv.ro/hlsengine/prepare/", headers=headers)
+            play_url = m3url + "|Cookie=PHPSESSID=" + s.cookies['PHPSESSID'] + ";SERVERID=" + s.cookies['SERVERID'] + ";&Origin=" + website + "&Referer=" + url + "&User-Agent=" + ua
+        ###################################
+        #with open('/storage/.kodi/temp/files.py', 'wb') as f: f.write(repr(play_url))
+            item = xbmcgui.ListItem(title, iconImage=icon, thumbnailImage=icon)
+            xbmc.Player().play(play_url, item)
     except:
-        return False
+        xbmc.executebuiltin((u'Notification(%s,%s)' % ('ProTV', 'Video indisponibil')))
     
 def get_search_url(keyword, offset=None):
     url = 'http://protvplus.ro/hledat?q=' + urllib.quote_plus(keyword) + '&searchsend=Search'
     return url
 
 def get_search(url):
-    
-    params = {}
-    req = urllib2.Request(url, urllib.urlencode(params))
-    req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.80 Safari/537.36')
-    req.add_header('Content-type', 'application/x-www-form-urlencoded')
+    header = {'User-Agent': ua,
+        'Content-type': 'application/x-www-form-urlencoded'}
     try:
-        response = urllib2.urlopen(req)
-        link = response.read()
-        response.close()
+        response = requests.get(url, headers=header)
+        link = response.text
         return link
     except:
         return False
@@ -221,10 +200,10 @@ elif mode == 3:
     CAUTA(url)
         
 elif mode == 23:
-        parse_menu(url, meniu)
+    parse_menu(url, meniu)
 
 elif mode == 10:
-        SXVIDEO_GENERIC_PLAY(url, icon)
+    play_video(url, icon)
 
 
 

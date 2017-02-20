@@ -108,7 +108,7 @@
 
 <addon id="plugin.video.protvro"
        name="Protv.ro"
-       version="1.0.9"
+       version="1.1.0"
        provider-name="kingul">
   <requires>
     <import addon="xbmc.python" version="2.1.0"/>
@@ -163,7 +163,7 @@
 
 <addon id="plugin.video.digi24"
        name="Digi24"
-       version="1.1.9"
+       version="1.2.0"
        provider-name="kingul">
   <requires>
     <import addon="xbmc.python" version="2.1.0"/>
@@ -285,6 +285,29 @@
         <disclaimer lang='ru'>GNU GPLv3 http://www.gnu.org/licenses/</disclaimer>
     </extension>
   <extension point='xbmc.python.module'/>
+</addon>
+
+<addon id="service.subtitles.addic7ed"
+       name="Addic7ed.com"
+       version="1.1.0"
+       provider-name="CFlannagan, forked by Kingul">
+    <requires>
+        <import addon="xbmc.python" version="2.14.0"/>
+    </requires>
+    <extension point="xbmc.subtitle.module"
+               library="service.py"/>
+    <extension point="xbmc.addon.metadata">
+        <summary lang="en">Get subtitles from Addic7ed.com</summary>
+        <description lang="en">Description for Addic7ed to come</description>
+        <disclaimer lang="en"/>
+        <platform>all</platform>
+        <language/>
+        <license>GNU GENERAL PUBLIC LICENSE. Version 2, June 1991</license>
+        <forum>http://forum.xbmc.org/showthread.php?tid=184854</forum>
+        <website/>
+        <email/>
+        <source>https://github.com/cflannagan/service.subtitles.addic7ed</source>
+    </extension>
 </addon>
 
 <addon id="service.subtitles.subsro"
