@@ -289,7 +289,7 @@
 
 <addon id="service.subtitles.addic7ed"
        name="Addic7ed.com"
-       version="1.1.0"
+       version="1.1.1"
        provider-name="CFlannagan, forked by Kingul">
     <requires>
         <import addon="xbmc.python" version="2.14.0"/>

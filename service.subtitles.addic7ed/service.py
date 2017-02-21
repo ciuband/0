@@ -170,11 +170,41 @@ def Search(item):
     else:
         if str(item['year']) == "":
             item['title'], item['year'] = xbmc.getCleanMovieTitle(item['title'])
-            item['title'] = addic7ize((re.sub('S(\d{1,2})E(\d{1,2})', '', item['title'])).strip())
-            search_manual(item['title'], item['3let_language'])
+            episodes = re.compile('S(\d{1,2})E(\d{1,2})', re.IGNORECASE).findall(item['title'])
+            if episodes:
+                item['season'] = episodes[0][0]
+                item['episode'] = episodes[0][1]
+            else:
+                episodes = re.compile('(\d)(\d{1,2})', re.IGNORECASE).findall(item['title'])
+                if episodes:
+                    item['season'] = episodes[0][0]
+                    item['episode'] = episodes[0][1]
+            item['title'] = addic7ize((re.sub('(\d)(\d{1,2})', '', (re.sub('S(\d{1,2})E(\d{1,2})', '', item['title'])))).strip())
+            
+            if len(item['season']) > 0 and len(item['episode']) > 0:
+                query_TvShow(item['title'], item['season'], item['episode'], item['3let_language'], filename)
+            else:
+                search_manual(item['title'], item['3let_language'])
         else:
             query_Film(item['title'], item['year'], item['3let_language'], filename)
 
+def takeTitleFromFocusedItem():
+    labelMovieTitle = xbmc.getInfoLabel("ListItem.OriginalTitle")
+    labelYear = xbmc.getInfoLabel("ListItem.Year")
+    labelTVShowTitle = xbmc.getInfoLabel("ListItem.TVShowTitle")
+    labelSeason = xbmc.getInfoLabel("ListItem.Season")
+    labelEpisode = xbmc.getInfoLabel("ListItem.Episode")
+    labelType = xbmc.getInfoLabel("ListItem.DBTYPE")  #movie/tvshow/season/episode	
+    isItMovie = labelType == 'movie' or xbmc.getCondVisibility("Container.Content(movies)")
+    isItEpisode = labelType == 'episode' or xbmc.getCondVisibility("Container.Content(episodes)")
+
+    title = 'SearchFor...'
+    if isItMovie and labelMovieTitle and labelYear:
+        title = labelMovieTitle + " " + labelYear
+    elif isItEpisode and labelTVShowTitle and labelSeason and labelEpisode:
+        title = ("%s S%.2dE%.2d" % (labelTVShowTitle, int(labelSeason), int(labelEpisode)))
+
+    return title
   
 def download(link):
     subtitle_list = []
@@ -190,10 +220,6 @@ def download(link):
     r = s.get(link, headers=req_headers)
     t = r.content
     with open(files, 'wb') as f: f.write(t)
-    #filen.retrieve(link, file)
-    #local_file_handle = open(file, "wb")
-    #local_file_handle.write(f)
-    #local_file_handle.close()
 
     subtitle_list.append(files)
 
@@ -241,16 +267,29 @@ params = get_params()
 
 if params['action'] == 'search' or params['action'] == 'manualsearch':
     item = {}
-    item['temp'] = False
-    item['rar'] = False
-    item['mansearch'] = False
-    item['year'] = xbmc.getInfoLabel("VideoPlayer.Year")                             # Year
-    item['season'] = str(xbmc.getInfoLabel("VideoPlayer.Season"))                    # Season
-    item['episode'] = str(xbmc.getInfoLabel("VideoPlayer.Episode"))                  # Episode
-    item['tvshow'] = normalizeString(xbmc.getInfoLabel("VideoPlayer.TVshowtitle"))   # Show
-    item['title'] = normalizeString(xbmc.getInfoLabel("VideoPlayer.OriginalTitle"))  # try to get original title
-    item['file_original_path'] = urllib.unquote(xbmc.Player().getPlayingFile().decode('utf-8'))  # Full path
-    item['3let_language'] = []
+    if xbmc.Player().isPlaying():
+        item['temp']               = False
+        item['rar']                = False
+        item['mansearch']          = False
+        item['year']               = xbmc.getInfoLabel("VideoPlayer.Year")                         # Year
+        item['season']             = str(xbmc.getInfoLabel("VideoPlayer.Season"))                  # Season
+        item['episode']            = str(xbmc.getInfoLabel("VideoPlayer.Episode"))                 # Episode
+        item['tvshow']             = normalizeString(xbmc.getInfoLabel("VideoPlayer.TVshowtitle"))  # Show
+        item['title']              = normalizeString(xbmc.getInfoLabel("VideoPlayer.OriginalTitle"))# try to get original title
+        item['file_original_path'] = xbmc.Player().getPlayingFile().decode('utf-8')                 # Full path of a playing file
+        item['3let_language']      = [] #['scc','eng']
+
+    else:
+        item['temp'] = False
+        item['rar'] = False
+        item['mansearch'] = False
+        item['year'] = ""
+        item['season'] = ""
+        item['episode'] = ""
+        item['tvshow'] = ""
+        item['title'] = takeTitleFromFocusedItem()
+        item['file_original_path'] = ""
+        item['3let_language'] = []
 
     if 'searchstring' in params:
         item['mansearch'] = True
