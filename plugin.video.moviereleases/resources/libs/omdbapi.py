@@ -29,12 +29,24 @@ def listmovies(url):
 
 def searchmovielist(list,result):
 	basic.log(u"omdbapi.searchmovielist list: %s" % list)
-	for num,id in list: 
+	if len(list) > 2:
+            searching = []
+            for num,imagine,nume,an,regia,actori,gen,nota,descriere in list:
+                moviedata = searchmovie([num,imagine,nume,an,regia,actori,gen,nota,descriere],'an')
+                if moviedata: result.append([num,moviedata])
+        else:
+            for num,id in list: 
 		moviedata = searchmovie(id)
 		if moviedata: result.append([num,moviedata])
-	basic.log(u"omdbapi.searchmovielist result: %s" % result)
-	
-def searchmovie(id,cache=True):
+	#basic.log(u"omdbapi.searchmovielist result: %s" % result)
+
+def striphtml(data):
+        p = re.compile(r'<.*?>')
+        p = p.sub('', data)
+        p = " ".join(p.split())
+        return p.strip()
+
+def searchmovie(id,an=None,cache=True):
 	basic.log(u"omdbapi.searchmovie id: %s" % id)
 	listgenre = []
 	listcast = []
@@ -53,32 +65,75 @@ def searchmovie(id,cache=True):
 	dur = 0
 	if cache:
 		if getSetting("cachesites") == 'true':
-			cached = localdb.get_cache(id)
+			cached = localdb.get_cache(id,an)
 			if cached:
 				response = { "label": cached[2], "originallabel": cached[3], "poster": cached[4], "fanart_image": cached[5], "imdbid": cached[0], "year": cached[6], "info": json.loads(cached[7]) }
-				return response		
-	jsonpage = basic.open_url(links.link().omdbapi_info % (id))
-	jdef = json.loads(jsonpage)
-	title = jdef['Title']
-	poster = jdef['Poster']
+				return response
+        if an:
+                ordine = id[0]
+                imagine = id[1]
+                nume = id[2]
+                an = id[3]
+                regia = id[4]
+                actori = id[5]
+                gen = id[6]
+                nota = id[7]
+                descriere = id[8]
+                id = '1'
+                #jsonpage = basic.open_url(links.link().omdbapi_byname % (nume.encode('ascii','xmlcharrefreplace'), an))
+                jsonpage={}
+	else: jsonpage = basic.open_url(links.link().omdbapi_info % (id))
+	try:
+            jdef = json.loads(jsonpage)
+        except:
+            try: nume = nume.decode('utf-8')
+            except: nume = nume
+            jdef = {'Title': nume,
+                    'Poster': imagine,
+                    'Genre': striphtml(gen),
+                    'Plot': descriere,
+                    'Year': an,
+                    'Actors': re.sub('Cu: ','',striphtml(actori)),
+                    'Director': re.sub('Regia: ','',striphtml(regia)),
+                    'Writer': '',
+                    'Runtime': '',
+                    'imdbRating': re.sub('IMDB: ','',nota),
+                    'imdbVotes': ''}
+	try: title = jdef['Title']
+	except: title = nume
+	try: poster = jdef['Poster']
+	except: poster = imagine
 	fanart = poster
-	genre = jdef['Genre']
-	plot = jdef['Plot']
+	try: genre = jdef['Genre']
+	except: genre = striphtml(gen)
+	try: plot = jdef['Plot']
+	except: plot = descriere
 	tagline = plot
 	try: year = re.findall('(\d+)', jdef['Year'], re.DOTALL)[0]
-	except: year = jdef['Year']
-	listcast = jdef['Actors'].split(', ')
-	director = jdef['Director']
-	writer = jdef['Writer']
-	duration = re.findall('(\d+) min', jdef['Runtime'], re.DOTALL)
-	if duration: dur = int(duration[0])
-	else: 
+	except:
+            try: year = jdef['Year']
+            except: year = an
+	try: listcast = jdef['Actors'].split(', ')
+	except: listcast = re.sub('Cu: ','',striphtml(actori)).split(', ')
+	try: director = jdef['Director']
+	except: director = re.sub('Regia: ','',striphtml(regia))
+	try: writer = jdef['Writer']
+	except: writer = ''
+	try:
+            duration = re.findall('(\d+) min', jdef['Runtime'], re.DOTALL)
+            if duration: dur = int(duration[0])
+            else: 
 		duration = re.findall('(\d) h', jdef['Runtime'], re.DOTALL)
 		if duration: dur = int(duration[0])*60
+        except: duration = ''
+        try: rating = jdef['imdbRating']
+        except: rating = re.sub('IMDB: ','',nota)
+        try: votes = jdef['imdbVotes']
+        except: votes = ''
 	info = {
 			"genre": genre, 
 			"year": year,
-			"rating": jdef['imdbRating'], 
+			"rating": rating, 
 			"cast": listcast,
 			"castandrole": listcast,
 			"director": director,
@@ -93,7 +148,7 @@ def searchmovie(id,cache=True):
 			"premiered": '',
 			"code": id,
 			"credits": '',
-			"votes": jdef['imdbVotes'],
+			"votes": votes,
 			"trailer": ''
 			}		
 	response = {
@@ -106,5 +161,5 @@ def searchmovie(id,cache=True):
 		"info": info
 		}
 	if cache:
-		if getSetting("cachesites") == 'true': localdb.save_cache(id,'','%s (%s)' % (title,year),'%s (%s)' % (title,year),poster,fanart,year,json.dumps(info))
+		if getSetting("cachesites") == 'true': localdb.save_cache(id,'','%s (%s)' % (title,year),'%s (%s)' % (title,year),poster,fanart,year,json.dumps(info),an)
 	return response

@@ -5,7 +5,7 @@
 
 import xbmcplugin,xbmcgui,xbmc,xbmcaddon,os,threading,re,urllib,json,time
 from BeautifulSoup import BeautifulSoup
-from resources.libs import links,tmdb,imdb,trakt,rottentomatoes,youtube,basic,localdb
+from resources.libs import links,tmdb,imdb,trakt,rottentomatoes,youtube,basic,localdb,cnmg
 AddonsResolver = True
 try:
 	addon_resolver = xbmc.translatePath('special://home/addons/script.module.addonsresolver/resources/libs')
@@ -41,6 +41,7 @@ def MAIN():
 	addDir(language(30000),'LatestReleases',3,'',True,7,'',0,'','','')
 	addDir(language(30001),'TMDB',6,'',True,7,'',0,'','','')
 	addDir(language(30002),'IMDB',4,'',True,7,'',0,'','','')
+	addDir('Cinemagia(RO)','Cinemagia',18,'',True,7,'',0,'','','')
 	if links.link().trakt_apikey <> '': addDir(language(30047),'trakt',14,'',True,7,'',0,'','','')
 	if links.link().rotten_key <> '': addDir(language(30074),'rotten',16,'',True,7,'',0,'','','')
 	addDir(language(30003),'search',7,'',True,7,'',0,'','','')	
@@ -103,6 +104,37 @@ def rottenmenu():
 	addDir(language(30079),'dvdnew_releases',17,'',True,9,'',1,'','','')
 	#addDir('dvdupcoming','dvdupcoming',17,'',True,1,'',1,'','','')
 	menus_view()
+
+def cnmgmenu():
+        addDir('Liste Useri','liste',19,'',True,1,'',1,'','','')
+        addDir(('Filme după ţări').decode('utf-8'),'tari',19,'',True,1,'',1,'','','')
+        addDir(('Filme după gen').decode('utf-8'),'gen',19,'',True,1,'',1,'','','')
+        menus_view()
+
+def cnmglist(index,url,originalname, year=''):
+        listdirs = []
+	if year == 'liste' or year == 'filme': 
+            listdirs = cnmg.listmovies(url, year)
+            for j in listdirs: addDir(j['label'],j['imdbid'],2,j['poster'],False,len(listdirs)+1,j['info'],'',j['imdbid'],j['year'],j['originallabel'],j['fanart_image'])
+            addDir(language(30018)+'>>',(url+'?&pn='+str(int(index)+1)),19,'',True,1,'',int(index)+1,'','filme','')
+            #with open('/root/.kodi/temp/files.py', 'wb') as f: f.write(repr((url+'?&pn='+str(int(index)+1))))
+            movies_view()
+	if url == 'liste':
+            liste = cnmg.getliste(links.link().cnmg_liste % (index))
+            for lista in liste:
+                addDir(lista[3],lista[2],19,lista[1],True,1,lista[4],1,'','liste','')
+            addDir(language(30018)+'>>',url,19,'',True,len(liste)+1,'',int(index)+1,'','','','')
+        elif url == 'tari':
+            tari = cnmg.gettari(links.link().cnmg_filme % ('1'), url)
+            for tara in tari:
+                addDir(tara[2],tara[1],19,'',True,1,'',1,'','filme','')
+        elif url == 'gen':
+            genuri = cnmg.gettari(links.link().cnmg_filme % ('1'), url)
+            for gen in genuri:
+                gen_n = cnmg.striphtml(gen[2])
+                if not gen_n == '':
+                    addDir(gen_n,gen[1],19,'',True,1,'',1,'','filme','')
+            
 
 def rottenlist(index,url):
 	listdirs = []
@@ -398,4 +430,6 @@ elif mode==14: traktmenu()
 elif mode==15: traktlist(index,url)
 elif mode==16: rottenmenu()
 elif mode==17: rottenlist(index,url)
+elif mode==18: cnmgmenu()
+elif mode==19: cnmglist(index,url,originalname,year)
 xbmcplugin.endOfDirectory(int(sys.argv[1]))

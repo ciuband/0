@@ -1,3 +1,9 @@
+Version 0.2.8c
+- Added filter year by genre to Imdb
+- Added cinemagia.ro
+- Work in progress, more to come
+
+
 Version 0.2.7
 - faster latest releases and no false good releases
 

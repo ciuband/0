@@ -35,12 +35,15 @@ def get_index(imdbid,index,label):
 			return True
 	except BaseException as e: basic.log(u"localdb.get_index ##Error: %s" % str(e))
 
-def get_cache(id):
+def get_cache(id,an=None):
 	try:
 		dbcon = database.connect(addonCache)
 		dbcur = dbcon.cursor()
-		if str(id).startswith('tt'): dbcur.execute("SELECT * FROM cache WHERE imdbid = '%s'" % (id))
-		else: dbcur.execute("SELECT * FROM cache WHERE tmdbid = '%s'" % (id))
+		if an:
+                    dbcur.execute("SELECT * FROM cache WHERE label = '%s'" % (id[1]))
+                else:
+                    if str(id).startswith('tt'): dbcur.execute("SELECT * FROM cache WHERE imdbid = '%s'" % (id))
+                    else: dbcur.execute("SELECT * FROM cache WHERE tmdbid = '%s'" % (id))
 		found = dbcur.fetchone()
 		if not found: return False
 		else: return found
@@ -54,11 +57,15 @@ def save_index(imdbid,index,label):
 		dbcon.commit()
 	except BaseException as e: basic.log(u"localdb.save_index ##Error: %s" % str(e))
 
-def save_cache(imdbid,tmdbid,label,originallabel,poster,fanart_image,year,info):
+def save_cache(imdbid,tmdbid,label,originallabel,poster,fanart_image,year,info,an=None):
 	try:
 		dbcon = database.connect(addonCache)
 		dbcur = dbcon.cursor()
-		dbcur.execute("INSERT INTO cache Values (?, ?, ?, ?, ?, ?, ?, ?)", (imdbid,tmdbid,label,originallabel,poster,fanart_image,year,info))
+		if an and poster == '':
+                    try: dbcur.execute("INSERT INTO cache Values (?, ?, ?, ?, ?, ?, ?, ?)", (label,tmdbid,label,originallabel,poster,fanart_image,year,info))
+                    except: pass
+                else:
+                    dbcur.execute("INSERT INTO cache Values (?, ?, ?, ?, ?, ?, ?, ?)", (imdbid,tmdbid,label,originallabel,poster,fanart_image,year,info))
 		dbcon.commit()
 	except BaseException as e: basic.log(u"localdb.save_cache ##Error: %s" % str(e))
 	

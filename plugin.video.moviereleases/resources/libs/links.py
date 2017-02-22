@@ -10,7 +10,7 @@ class link:
 	def __init__(self):
 		import base64
 		self.omdbapi_info = 'http://www.omdbapi.com/?plot=short&r=json&i=%s'
-		
+		self.omdbapi_byname = 'http://www.omdbapi.com/?t=%s+&y=%s&plot=full&r=json'
 		self.tmdb_base = 'http://api.themoviedb.org/3/movie/%s'
 		self.tmdb_image = 'http://image.tmdb.org/t/p/%s'
 		self.tmdb_key = base64.urlsafe_b64decode('ODFlNjY4ZTdhMzdhM2Y2NDVhMWUyMDYzNjg3ZWQ3ZmQ=')
@@ -45,6 +45,10 @@ class link:
 		self.imdb_genre = 'http://www.imdb.com/chart/boxoffice/'
 		self.imdb_year = 'http://www.imdb.com/year/'
 		self.imdb_year_genre = 'http://akas.imdb.com/search/title?year=%s,%s&title_type=feature&explore=genres&genres=%s&page=%s'
+		
+		self.cnmg = 'http://www.cinemagia.ro/liste/cele-mai-interesante-filme-5578/'
+		self.cnmg_liste = 'http://www.cinemagia.ro/liste/filme/?pn=%s'
+		self.cnmg_filme = 'http://www.cinemagia.ro/filme/?&pn=%s'
 		
 		self.trakt_user, self.trakt_password = getSetting("trakt_user"), getSetting("trakt_password")	
 		self.trakt_base_s = 'https://api.trakt.tv/%s'

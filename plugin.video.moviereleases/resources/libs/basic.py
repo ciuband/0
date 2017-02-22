@@ -30,7 +30,7 @@ def open_url(url,post=None):
 		link=response.read()
 		response.close()
 		return link		
-	except BaseException as e: log(u"open_url ERROR: %s - %s" % (str(url),str(e).decode('ascii','ignore')))
+	except BaseException as e: log(u"open_url ERROR: %s - %s" % (str(url),str(e).encode('ascii','xmlcharrefreplace')))
 	except urllib2.HTTPError, e: log(u"open_url HTTPERROR: %s - %s" % (str(url),str(e.code)))
 	except urllib2.URLError, e: log(u"open_url URLERROR: %s - %s" % (str(url),str(e.reason)))
 	except httplib.HTTPException, e: log(u"open_url HTTPException: %s" % (str(url)))
@@ -111,7 +111,7 @@ def settings_open(id):
 	
 def _log(module, msg):
 	s = u"#[%s] - %s" % (module, msg)
-	xbmc.log(s.encode('utf-8'), level=xbmc.LOGDEBUG)
+	xbmc.log(s.encode('utf-8'), level=xbmc.LOGNOTICE)
 
 def log(msg):
 	if debug == 'true': _log(__name__, msg)
