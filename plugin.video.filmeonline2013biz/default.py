@@ -9,9 +9,9 @@ import xbmcaddon
 import xbmcgui
 import xbmcplugin
 try:
-    import urlresolver9 as urlresolver
-except:
     import urlresolver
+except:
+    import urlresolver9 as urlresolver
 
 settings = xbmcaddon.Addon(id='plugin.video.filmeonline2013biz')
 __addon__ = xbmcaddon.Addon()
@@ -89,17 +89,8 @@ def CAUTA(url, autoSearch=None):
 def SXVIDEO_GENERIC_PLAY(sxurl, mname):
     liz = xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=movies_thumb); liz.setInfo(type="Video", infoLabels={"Title": name})
     liz.setInfo(type="Video", infoLabels={"Title": mname})
-    if 'openload' in sxurl:
-        if sxurl.endswith('/'):
-            ol_id = re.sub('/$','', sxurl).rsplit('/', 1)[-1]
-        else:
-            ol_id = sxurl.rsplit('/', 1)[-1]
-        import ol
-        new_ol = ol.OpenLoadResolver().get_media_url(None, ol_id)
-        xbmc.Player ().play(new_ol, liz, False)
-    else:
-        hmf = urlresolver.HostedMediaFile(url=sxurl, include_disabled=True, include_universal=False) 
-        xbmc.Player ().play(hmf.resolve(), liz, False)
+    hmf = urlresolver.HostedMediaFile(url=sxurl, include_disabled=True, include_universal=False) 
+    xbmc.Player ().play(hmf.resolve(), liz, False)
     
 def get_url(url):
     req = urllib2.Request(url)
