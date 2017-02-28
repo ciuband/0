@@ -144,7 +144,7 @@
 
 <addon id="plugin.video.filmehdnet"
        name="FilmeHD.net"
-       version="1.0.3"
+       version="1.0.3a"
        provider-name="kingul">
   <requires>
     <import addon="xbmc.python" version="2.1.0"/>

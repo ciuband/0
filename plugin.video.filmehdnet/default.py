@@ -97,18 +97,8 @@ def CAUTA(url):
 def SXVIDEO_GENERIC_PLAY(sxurl, mname, desc):
     liz = xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=movies_thumb)
     liz.setInfo(type="Video", infoLabels={"Title": mname, "Plot": desc})
-    if 'openload' in sxurl:
-        if sxurl.endswith('/'):
-            ol_id = re.sub('/$','', sxurl).rsplit('/', 1)[-1]
-        else:
-            ol_id = sxurl.rsplit('/', 1)[-1]
-        #with open('/storage/.kodi/temp/files.py', 'wb') as f: f.write(repr(sxurl.rsplit('/', 1)))
-        import ol
-        new_ol = ol.OpenLoadResolver().get_media_url(None, ol_id)
-        xbmc.Player ().play(new_ol, liz, False)
-    else:
-        hmf = urlresolver.HostedMediaFile(url=sxurl, include_disabled=True, include_universal=False) 
-        xbmc.Player ().play(hmf.resolve(), liz, False)
+    hmf = urlresolver.HostedMediaFile(url=sxurl, include_disabled=True, include_universal=False) 
+    xbmc.Player ().play(hmf.resolve(), liz, False)
     
 def get_url(url):
     req = urllib2.Request(url)
