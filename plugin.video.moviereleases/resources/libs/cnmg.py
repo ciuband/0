@@ -1,11 +1,7 @@
 ﻿# -*- coding: UTF-8 -*-
-# by Mafarricos
-# email: MafaStudios@gmail.com
-# This program is free software: GNU General Public License
 
-import re,threading,xbmcgui
+import re,threading,xbmcgui,xbmc
 import basic,tmdb,omdbapi
-from BeautifulSoup import BeautifulSoup
 from resources.libs import links
 import datetime
 
@@ -16,8 +12,8 @@ def listmovies(url, tip):
 	result = []
 	threads = []
 	order = 0
-	htmlpage = basic.open_url(url)
 	if tip == 'liste':
+            htmlpage = basic.open_url(url)
             regex = '''<li class="list_item clearfix">(.+?)</li>'''
             regex2 = '''<a [^>]*href\s*=\s*"[^"]*imdb.com/title/(.*?)/"'''
             for lists in re.compile(regex, re.IGNORECASE | re.MULTILINE | re.DOTALL).findall(htmlpage):
@@ -26,13 +22,18 @@ def listmovies(url, tip):
                     sendlist.append([order,imdb_id])
             target = tmdb.searchmovielist
         elif tip == 'filme':
+            headers = {'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:51.0) Gecko/20100101 Firefox/51.0',
+                   'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                   'Referer': url,
+                   'Cookie': 'ps=30'}
+            htmlpage = basic.open_url_headers(url, headers)
             regex = '''<div class="poza">(.+?)</div>\n</li>'''
-            regex2 = '''img src="(.+?)".+?<h2>.+?title.+?>(.+?)<.+?\((\d+)\).*(?:^$|<li>(.+?)</li>).*(?:^$|<li>(.+?)</li>).+?Gen.+?">(.+?)</ul>.+?(?:^$|\((.+?)\)).+?body".+?(?:^$|<span>(.+?)</span>)'''
+            regex2 = '''img src="(.+?)".+?<h2>.+?title.+?>(.+?)<.+?\((\d+)\).*(?:^$|<li>(.+?)</li>).*(?:^$|<li>(.+?)</li>).+?Gen.+?">(.+?)</ul>.+?(?:^$|\((.+?)\)).+?body".+?(?:^$|href="(.+?)".+?)(?:^$|<span>(.+?)</span>)'''
             for lists in re.compile(regex, re.IGNORECASE | re.MULTILINE | re.DOTALL).findall(htmlpage):
-                for imagine,nume,an,regia,actori,gen,nota,descriere in re.compile(regex2, re.IGNORECASE | re.MULTILINE | re.DOTALL).findall(lists):
+                for imagine,nume,an,regia,actori,gen,nota,trailer,descriere in re.compile(regex2, re.IGNORECASE | re.MULTILINE | re.DOTALL).findall(lists):
                     order += 1
                     nume = nume.decode('utf-8')
-                    sendlist.append([order,imagine,nume,an,regia,actori,gen,nota,descriere])
+                    sendlist.append([order,imagine,nume,an,regia,actori,gen,nota,trailer,descriere])
             target = omdbapi.searchmovielist
 	chunks=[sendlist[x:x+5] for x in xrange(0, len(sendlist), 5)]
 	for i in range(len(chunks)): threads.append(threading.Thread(name='listmovies'+str(i),target=target,args=(chunks[i],result, )))
@@ -77,13 +78,16 @@ def getliste(url):
         liste = []
         order = 0
         regex = '''<div class="list_preview clearfix">(.+?)<div class="list_meta">(.+?)</div>'''
-        regex2 = '''img src="(.+?)".+?list_name.+?<a href="(.+?)">(.+?)</a>'''
+        regex2 = '''img src="(.+?)".+?"up">(.+?)<.+?"down">(.+?)<.+?list_name.+?<a href="(.+?)">(.+?)</a>'''
         #with open('/root/.kodi/temp/files.py', 'wb') as f: f.write(repr(htmlpage))
         for lists in re.compile(regex, re.IGNORECASE | re.MULTILINE | re.DOTALL).findall(htmlpage):
-            for imagine, link, nume in re.compile(regex2, re.DOTALL).findall(lists[0]):
+            for imagine, aprecieri, deprecieri, link, nume in re.compile(regex2, re.DOTALL).findall(lists[0]):
                 order += 1
-                nume = nume.decode('utf-8')
-                descriere = {'plot': (striphtml(lists[1]).strip()).decode('utf-8')}
+                nume = nume.decode('utf-8').strip()
+                nume += ' (%s filme) ' % (re.findall('cu.+?(\d+)', lists[1])[0])
+                info = (striphtml(lists[1]).strip()).decode('utf-8')
+                info += ' | Cu %s aprecieri si %s deprecieri' % (aprecieri, deprecieri)
+                descriere = {'plot': info, 'title': nume}
                 liste.append([order, imagine, link, nume, descriere])
         return liste
 
@@ -101,25 +105,18 @@ def gettari(url, tip=''):
             nume = nume.decode('utf-8')
             tarisoara.append([order, link, nume])
         return tarisoara
-
-def getlinks(url,results,order,Source=None):
-	basic.log(u"cnmg.getlinks url: %s" % url)
-	try:
-		html_page = basic.open_url(url)
-		if html_page:
-			soup = BeautifulSoup(html_page)
-			if Source == 'cnmg':
-				for link in soup.findAll('a', attrs={'href': re.compile("^/title/.+?/\?ref_=.+?_ov_tt")}):
-					if '?' in link.get('href'): cleanlink = link.get('href').split("?")[0].split("title")[1].replace('/','').replace('awards','').replace('videogallery','')
-					else: cleanlink = link.get('href').split("title")[1].replace('/','').replace('awards','').replace('videogallery','')
-					results.append([order, cleanlink])
-					order += 1			
-			else:
-				for link in soup.findAll('a', attrs={'href': re.compile("^http://.+?/title/")}):
-					if '?' in link.get('href'): cleanlink = link.get('href').split("?")[0].split("/title/")[1].replace('/','').replace('awards','').replace('videogallery','')
-					else: cleanlink = link.get('href').split("title")[1].replace('/','').replace('awards','').replace('videogallery','')
-					results.append([order, cleanlink])
-					order += 1
-			basic.log(u"imdb.getlinks results: %s" % results)
-			return results
-	except BaseException as e: basic.log(u"imdb.getlinks ERROR: %s - %s" % (str(url),str(e)))
+	
+def playtrailer(url,name):
+	if url == None: return
+        headers = {'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:51.0) Gecko/20100101 Firefox/51.0',
+                   'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                   'Referer': url}
+        htmlpage = basic.open_url_headers(url, headers)
+        regex = '''<iframe[^>]+src=["\']([http].+?)"'''
+        regex2 = '''<source[^>]+src=["\']([http].+?)\''''
+        source = re.compile(regex, re.IGNORECASE | re.MULTILINE | re.DOTALL).findall(htmlpage)[0]
+        getlink = basic.open_url_headers(source, headers)
+        link = re.compile(regex2, re.IGNORECASE | re.MULTILINE | re.DOTALL).findall(getlink)[-1]
+	item = xbmcgui.ListItem(name + ' - Trailer', path=link)
+	item.setProperty("IsPlayable", "true")
+	xbmc.Player().play(link, item)

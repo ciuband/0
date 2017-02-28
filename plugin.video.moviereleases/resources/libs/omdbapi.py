@@ -31,8 +31,8 @@ def searchmovielist(list,result):
 	basic.log(u"omdbapi.searchmovielist list: %s" % list)
 	if len(list) > 2:
             searching = []
-            for num,imagine,nume,an,regia,actori,gen,nota,descriere in list:
-                moviedata = searchmovie([num,imagine,nume,an,regia,actori,gen,nota,descriere],'an')
+            for num,imagine,nume,an,regia,actori,gen,nota,trailer,descriere in list:
+                moviedata = searchmovie([num,imagine,nume,an,regia,actori,gen,nota,trailer,descriere],'an')
                 if moviedata: result.append([num,moviedata])
         else:
             for num,id in list: 
@@ -78,7 +78,8 @@ def searchmovie(id,an=None,cache=True):
                 actori = id[5]
                 gen = id[6]
                 nota = id[7]
-                descriere = id[8]
+                trailer = id[8]
+                descriere = id[9]
                 id = '1'
                 #jsonpage = basic.open_url(links.link().omdbapi_byname % (nume.encode('ascii','xmlcharrefreplace'), an))
                 jsonpage={}
@@ -98,7 +99,8 @@ def searchmovie(id,an=None,cache=True):
                     'Writer': '',
                     'Runtime': '',
                     'imdbRating': re.sub('IMDB: ','',nota),
-                    'imdbVotes': ''}
+                    'imdbVotes': '',
+                    'trailer': trailer}
 	try: title = jdef['Title']
 	except: title = nume
 	try: poster = jdef['Poster']
@@ -130,6 +132,8 @@ def searchmovie(id,an=None,cache=True):
         except: rating = re.sub('IMDB: ','',nota)
         try: votes = jdef['imdbVotes']
         except: votes = ''
+        try: trailer = jdef['trailer']
+        except: trailer = ''
 	info = {
 			"genre": genre, 
 			"year": year,
@@ -149,7 +153,7 @@ def searchmovie(id,an=None,cache=True):
 			"code": id,
 			"credits": '',
 			"votes": votes,
-			"trailer": ''
+			"trailer": trailer
 			}		
 	response = {
 		"label": '%s (%s)' % (title,year),

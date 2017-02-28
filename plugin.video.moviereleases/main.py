@@ -295,6 +295,11 @@ def addDir(name,url,mode,poster,pasta,total,info,index,imdb_id,year,originalname
                 except: pass
 		liz.setInfo( type="Video", infoLabels=info )
 		try:
+                    if 'cinemagia' in info['trailer']:
+                        trailer = info['trailer']
+                        context.append((language(30019) + ' Cinemagia', 'RunPlugin(%s?mode=20&url=%s&name=%s)' %
+                                        (sys.argv[0],trailer,urllib.quote_plus(originalname.encode('ascii','xmlcharrefreplace')))))
+                    else:
 			trailer = info['trailer'].split('videoid=')[1]
 			context.append((language(30019), 'RunPlugin(%s?mode=1&url=%s&name=%s)' % (sys.argv[0],trailer,urllib.quote_plus(originalname.encode('ascii','xmlcharrefreplace')))))
 		except: pass
@@ -432,4 +437,5 @@ elif mode==16: rottenmenu()
 elif mode==17: rottenlist(index,url)
 elif mode==18: cnmgmenu()
 elif mode==19: cnmglist(index,url,originalname,year)
+elif mode==20: cnmg.playtrailer(url,name)
 xbmcplugin.endOfDirectory(int(sys.argv[1]))

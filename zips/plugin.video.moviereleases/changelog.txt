@@ -1,3 +1,8 @@
+Version 0.2.8d
+- Added trailer for RO
+- More items per page in RO
+- Work in progres...
+
 Version 0.2.8c
 - Added filter year by genre to Imdb
 - Added cinemagia.ro
