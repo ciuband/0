@@ -1,3 +1,8 @@
+1.1.1b
+improved subtitle detection
+added mark for hearing impaired
+added rating based on completed percent
+
 1.1.1a
 fix
 

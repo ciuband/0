@@ -54,7 +54,7 @@ LANGUAGES = (
   ("Farsi", "52", "fa", "per", "13", 30247),
   ("English (US)", "2", "en", "eng", "100", 30212),
   ("English (UK)", "2", "en", "eng", "100", 30212),
-  ("Portuguese (Brazilian)", "48", "pt-br", "pob", "100", 30234),
+  ("Portuguese (Brazilian)", "48", "pb", "pob", "100", 30234),
   ("Portuguese (Brazil)", "48", "pb", "pob", "33", 30234),
   ("Portuguese-BR", "48", "pb", "pob", "33", 30234),
   ("Brazilian", "48", "pb", "pob", "33", 30234),
@@ -69,7 +69,7 @@ LANGUAGES = (
 
    
 def log(module,msg):
-  xbmc.log((u"### [%s] - %s" % (module, msg,)).encode('utf-8'), level=xbmc.LOGDEBUG)
+  xbmc.log((u"### [%s] - %s" % (module, msg,)).encode('utf-8'), level=xbmc.LOGNOTICE)
 
 def get_language_info(language):
   for lang in LANGUAGES:
