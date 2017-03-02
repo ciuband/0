@@ -67,18 +67,21 @@ def append_subtitle(item):
     xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=url, listitem=listitem, isFolder=False)
 
 def query_TvShow(name, season, episode, langs, file_original_path):
+    log(__name__, "query show: 'name=%s, season=%s, episode=%s, langs=%s, file_original_path=%s'" % (name, season, episode, langs, file_original_path))
     name = addic7ize(name).lower().replace(" ", "_")
     searchurl = "%s/serie/%s/%s/%s/addic7ed" % (self_host, name, season, episode)
     filename_string = "%s.S%.2dE%.2d" % (name.replace("_", ".").title(), int(season), int(episode))
     query(searchurl, langs, file_original_path, filename_string)
 
 def query_Film(name, year, langs, file_original_path):
+    log(__name__, "query film: 'name=%s, year=%s, langs=%s, file_original_path=%s'" % (name, year, langs, file_original_path))
     name = urllib.quote(name.replace(" ", "_"))
     searchurl = "%s/film/%s_(%s)-Download" % (self_host, name, str(year))
     filename_string = "%s" % (name.replace("_", ".").title())
     query(searchurl, langs, file_original_path, filename_string)
 
 def query(searchurl, langs, file_original_path, filename_string):
+    log(__name__, "query: 'searchurl=%s, langs=%s, file_original_path=%s, filename_string=%s'" % (searchurl, langs, file_original_path, filename_string))
     sublinks = get_subs(searchurl, langs, filename_string)
     sublinks.sort(key=lambda x: [not x['sync']])
     #log(__name__, "sub='%s'" % (sublinks))
@@ -93,7 +96,7 @@ def get_subs(url, langs, filename_string, cont=None):
         content = get_url(url)
     sublinks = []
     regex = '''>Version(.+?),.+?uploaded(.+?)table footer'''
-    regex2 = '''(?:|\'>(.+?)</a>(.+?)</td>.+?)(?:|Translated(.+?))language">(.+?)<.+?(?:|<b>(\d{1,2}).+?)Download" href="(.+?)".+?(?:|.+?(impaired))'''
+    regex2 = '''(?:|\'>(.+?)</a>(.+?)</td>.+?)(?:|Translated(.+?))language">(.+?)<.+?(?:|<b>(\d{1,2}).+?)Download" href="(.+?)".+?(?:.+?(impaired)|)'''
     for match in re.compile(regex, re.IGNORECASE | re.MULTILINE | re.DOTALL).findall(content):
         ver = match[0]
         infos = re.compile(regex2, re.IGNORECASE | re.MULTILINE | re.DOTALL).findall(match[1])
@@ -169,7 +172,7 @@ def search_filename(filename, languages):
 
 def Search(item):
     filename = os.path.splitext(os.path.basename(item['file_original_path']))[0]
-    log(__name__, "Search_filename='%s', addon_version=%s" % (filename, __version__))
+    #log(__name__, "Search_filename='%s', addon_version=%s" % (filename, __version__))
 
     if item['mansearch']:
         search_manual(item['mansearchstr'], item['3let_language'])
@@ -324,7 +327,6 @@ if params['action'] == 'search' or params['action'] == 'manualsearch':
     elif item['file_original_path'].find("stack://") > -1:
         stackPath = item['file_original_path'].split(" , ")
         item['file_original_path'] = stackPath[0][8:]
-
     Search(item)
 
 elif params['action'] == 'download':

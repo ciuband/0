@@ -10,4 +10,5 @@
 'Scandal (2012)': 'Scandal',
 'Frontier (2016)': 'Frontier',
 'American Dad!': 'American Dad',
-'Last Man Standing US': 'Last Man Standing'}
+'Last Man Standing US': 'Last Man Standing',
+'The Flash': 'The Flash (2014)'}
