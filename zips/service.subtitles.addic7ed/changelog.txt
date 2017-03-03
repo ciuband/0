@@ -1,3 +1,6 @@
+1.1.1e
+ditto
+
 1.1.1d
 more improvements, added when I find them
 

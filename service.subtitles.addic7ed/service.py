@@ -117,8 +117,10 @@ def test():
         content = content_file.read()
     return content
 
-def search_manual(searchstr, languages):
+def search_manual(searchstr, languages, year=None):
     search_string = urllib.unquote(searchstr)
+    if year:
+        search_string  = search_string + ' ' + str(year)
     log(__name__, "manual_search='%s', addon_version=%s" % (search_string, __version__))
     url = self_host + "/search.php?search=" + search_string + '&Submit=Search'
     content = get_url(url, 'headers')
@@ -181,22 +183,26 @@ def Search(item):
         query_TvShow(item['tvshow'], item['season'], item['episode'], item['3let_language'], filename)
     else:
         if str(item['year']) == "":
-            item['title'], item['year'] = xbmc.getCleanMovieTitle(item['title'])
-            episodes = re.compile('S(\d{1,2})E(\d{1,2})', re.IGNORECASE).findall(item['title'])
+            titlu = item['title']
+            item['title'], item['year'] = xbmc.getCleanMovieTitle(titlu)
+            #log(__name__, "first item from filename='%s'" % (titlu))
+            episodes = re.compile('S(\d{1,2})E(\d{1,2})', re.IGNORECASE).findall(titlu)
             if episodes:
                 item['season'] = episodes[0][0]
                 item['episode'] = episodes[0][1]
             else:
-                episodes = re.compile('(\d)(\d{1,2})', re.IGNORECASE).findall(item['title'])
+                episodes = re.compile('(\d)(\d{1,2})', re.IGNORECASE).findall(titlu)
                 if episodes:
                     item['season'] = episodes[0][0]
                     item['episode'] = episodes[0][1]
             item['title'] = addic7ize((re.sub('(\d)(\d{1,2})', '', (re.sub('S(\d{1,2})E(\d{1,2})', '', item['title'])))).strip())
-            
+            try: item['title'] = item['title'].split('  ', 1)[0]
+            except: pass
+            log(__name__, "item from filename='%s'" % (item))
             if len(item['season']) > 0 and len(item['episode']) > 0:
                 query_TvShow(item['title'], item['season'], item['episode'], item['3let_language'], filename)
             else:
-                search_manual(item['title'], item['3let_language'])
+                search_manual(item['title'], item['3let_language'], item['year'])
         else:
             query_Film(item['title'], item['year'], item['3let_language'], filename)
 
