@@ -186,12 +186,12 @@ def Search(item):
             titlu = item['title']
             item['title'], item['year'] = xbmc.getCleanMovieTitle(titlu)
             #log(__name__, "first item from filename='%s'" % (titlu))
-            episodes = re.compile('S(\d{1,2})E(\d{1,2})', re.IGNORECASE).findall(titlu)
+            episodes = re.compile('S(\d{1,2})E(\d{1,2})', re.IGNORECASE).findall(item['title'])
             if episodes:
                 item['season'] = episodes[0][0]
                 item['episode'] = episodes[0][1]
             else:
-                episodes = re.compile('(\d)(\d{1,2})', re.IGNORECASE).findall(titlu)
+                episodes = re.compile('(\d)(\d{1,2})', re.IGNORECASE).findall(item['title'])
                 if episodes:
                     item['season'] = episodes[0][0]
                     item['episode'] = episodes[0][1]
@@ -202,7 +202,10 @@ def Search(item):
             if len(item['season']) > 0 and len(item['episode']) > 0:
                 query_TvShow(item['title'], item['season'], item['episode'], item['3let_language'], filename)
             else:
-                search_manual(item['title'], item['3let_language'], item['year'])
+                if item['year']:
+                    query_Film(item['title'], item['year'], item['3let_language'], filename)
+                else:
+                    search_manual(item['title'], item['3let_language'], item['year'])
         else:
             query_Film(item['title'], item['year'], item['3let_language'], filename)
 
